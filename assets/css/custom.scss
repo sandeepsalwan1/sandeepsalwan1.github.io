@@ -1,0 +1,95 @@
+---
+---
+
+.post-content {
+  p {
+    margin-bottom: 1.5em;
+    line-height: 1.6;
+  }
+
+  a {
+    color: #0066cc;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+
+.profile-image-container {
+  text-align: center;
+  margin: 2em 0;
+}
+
+.profile-image {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: inline-block;
+}
+
+
+h1 {
+  text-align: center;
+  margin-top: 1em;
+}
+.post {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2em 1em;
+}
+
+.projects {
+  h1 {
+    font-size: 2.5em;
+    margin-bottom: 1em;
+    color: #333;
+  }
+
+  .project {
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    h2 {
+      font-size: 1.8em;
+      margin-bottom: 0.5em;
+      
+      a {
+        color: #0066cc;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+
+      li {
+        margin-bottom: 0.5em;
+        position: relative;
+        padding-left: 1.5em;
+
+        &:before {
+          content: "•";
+          color: #0066cc;
+          position: absolute;
+          left: 0;
+          top: 0;
+          font-size: 1.2em;
+        }
+      }
+    }
+  }
+}

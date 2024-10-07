@@ -1,0 +1,265 @@
+body
+  background: $light
+  color: $dark
+  font-family: $font-family
+  font-weight: $font-weight
+  font-size: $font-size
+  line-height: $line-height
+  margin: 0
+  min-height: 100vh
+  -webkit-text-size-adjust: 100%
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  -moz-osx-font-smoothing: grayscale
+
+@media (prefers-color-scheme: dark)
+  body
+    background: $dark
+    color: $light
+
+h1, h2, h3, h4, h5, h6
+  font-weight: $heading-weight
+
+b, strong, th
+  font-weight: $font-weight + 200
+
+p
+  text-align: justify
+
+a
+  color: $link-color
+  text-decoration: inherit
+  &:hover
+    text-decoration: underline
+
+header a, footer a, aside a
+  color: inherit
+
+header time
+  color: reduce(100)
+
+hr
+  border: 1px solid reduce(30)
+  margin: 2em 0
+
+article:not(:last-of-type)
+  border-bottom: 1px solid reduce(14)
+
+blockquote
+  background: reduce(6)
+  border-left: 3px solid reduce(90)
+  padding: 1px 1.5em
+  opacity: .75
+
+blockquote, figure
+  margin: 1em 0
+
+img
+  margin: .5em 0
+
+li
+  margin: .25em 0
+
+img
+  border-radius: 2px
+  max-width: 100%
+  height: auto
+
+.profile-image
+  width: 250px !important
+  height: 250px !important
+  border-radius: 50% !important
+  object-fit: cover !important
+  display: block !important
+  margin: 0 auto !important
+
+
+table
+  display: inline-block
+  max-width: 100%
+  overflow-y: scroll
+  border-spacing: 1px
+  border-radius: 2px
+  box-shadow: 0 0 0 1px reduce(12) inset
+
+th, td
+  padding: .5em 1em
+  box-shadow: 0 0 0 1px reduce(12)
+
+tr:hover, tr:nth-child(odd) td
+  background: reduce(4)
+
+pre
+  background: reduce(12)
+  border-radius: 2px
+  font-size: .8em
+  margin: 1.5em 0
+  padding: .8em 1.2em
+  overflow-x: auto
+
+\:not(pre) > code
+  font-size: .9em
+  background: reduce(15)
+  opacity: .7
+  border-radius: 2px
+  margin: 0 .1em
+  padding: .2em .4em
+
+@keyframes fadeInFromLeft
+  0%
+    opacity: 0
+    transform: translateX(-50px)
+  100%
+    opacity: 1
+    transform: translateX(0)
+
+.fade-in-left
+  animation: fadeInFromLeft 1s ease-out
+
+@keyframes fadeInLetter
+  0%
+    opacity: 0
+    transform: translateY(-20px)
+  100%
+    opacity: 1
+    transform: translateY(0)
+
+.fade-in-text
+  display: inline-block
+  span
+    display: inline-block
+    opacity: 0
+    animation: fadeInLetter 0.5s ease-out forwards
+
+@for $i from 1 through 20
+  .fade-in-text span:nth-child(#{$i})
+    animation-delay: #{$i * 0.1}s
+
+nav a
+  transition: color 0.3s ease, opacity 0.5s ease
+  opacity: 0
+  animation: fadeIn 0.5s ease-out forwards
+
+nav a:hover
+  color: $link-color
+
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(-10px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@for $i from 1 through 10
+  nav a:nth-child(#{$i})
+    animation-delay: #{$i * 0.1}s
+
+body
+  overflow-x: hidden
+
+@keyframes typing
+  from
+    width: 0
+  to
+    width: 100%
+
+@keyframes blink-caret
+  from, to
+    border-color: transparent
+  50%
+    border-color: $dark
+
+@keyframes hide-caret
+  to
+    border-color: transparent
+
+@keyframes typing-footer
+  from
+    width: 0
+  to
+    width: 2ch
+
+@keyframes blink-caret-footer
+  from, to
+    border-right-color: transparent
+  50%
+    border-right-color: $light
+
+.typing-animation-footer
+  display: inline-block
+  overflow: hidden
+  border-right: .15em solid $light
+  white-space: nowrap
+  margin: 0
+  letter-spacing: .1em
+  width: 0
+  opacity: 1
+  animation: typing-footer 1s steps(2, end) forwards, blink-caret-footer .75s step-end 3
+
+footer .typing-animation-footer
+  width: auto
+  text-align: left 
+
+@keyframes typing-footer
+  from
+    width: 0
+  to
+    width: 2ch
+
+@keyframes blink-caret-footer
+  from, to
+    border-color: transparent
+  50%
+    border-color: $light
+
+footer .footer-description
+  display: inline-block
+  margin-right: 1em
+  vertical-align: middle
+.typing-animation
+  display: inline-block
+  overflow: hidden
+  border-right: .15em solid $dark
+  white-space: nowrap
+  margin: 0 auto
+  letter-spacing: .15em
+  width: 0
+  opacity: 0
+  animation: typing 3.5s steps(40, end) 0.5s forwards, blink-caret .75s step-end 6, hide-caret 0s 4.3s forwards, fadeIn 0.1s 0.5s forwards
+
+.title
+  opacity: 0
+  animation: fadeIn 0.1s 0.5s forwards
+  
+.title .typing-animation
+  animation-delay: 0.5s, 0.5s, 4.8s
+
+header .description.typing-animation
+  animation-delay: 4s, 4s, 8.3s
+  font-size: 0.8em
+
+@media (prefers-color-scheme: dark)
+  .typing-animation
+    border-right-color: $light
+
+footer .footer-description
+  display: inline-block
+  margin-right: 1em
+  vertical-align: middle
+
+footer .typing-animation-footer
+  display: inline-block
+  width: 100%
+  text-align: left
+
+@keyframes hide-caret
+  to
+    border-right-color: transparent
+
+@keyframes hide-caret-footer
+  to
+    border-right-color: transparent
+
+.hide-caret
+  border-right-color: transparent !important

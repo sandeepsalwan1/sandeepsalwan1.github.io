@@ -1,0 +1,55 @@
+- name: AnimalCare
+  link: https://github.com/sandeepsalwan1/animalcare
+  features:
+    - Crafted zero-shot object detection pipeline with Meta's Sam2, utilizing Jupyter Notebook for segmentation to isolate animals in video frames.
+    - Designed an interface with React, Flask, HTML, and CSS for video uploads and processing.
+    - Optimized AI chat window with Python and REST API, analyzing animal videos only on frame changes for cost efficiency and accuracy.
+
+- name: HealthTech
+  link: https://github.com/sandeepsalwan1/healthtech
+  features:
+    - Engineered a HealthTech platform with a login page, featuring an Event Agent [ReAct Search] to find nearby events.
+    - Developed a Training Agent [CoT] using a multimodal LLM to provide personalized training plans from images and text.
+    - Designed a Nutrition Agent [RAG] that searches PDFs to recommend ready-made health plans.
+
+- name: HouseFinder AI
+  link: https://github.com/sandeepsalwan1/housefinderai
+  features:
+    - Developed specialized real estate platform with a team of 4 to categorize properties with RentcastAPI based on personal preferences like safety and walkability.
+    - Deployed custom GPT bot to answer more questions the user has.
+    - Increased app accessibility by implementing WhatsApp API and having a website frontend so the client can send messages through two platforms.
+
+- name: HousePrice AI
+  link: https://github.com/sandeepsalwan1/
+  features:
+    - Predicted real-time bay area house prices based on factors such as sq ft, # of rooms, and house age.
+    - Implemented multivariable polynomial regression.
+    - Utilized machine learning principles such as regression, normalization, and feature engineering for a more precise output.
+
+- name: Medical Scribe
+  link: https://github.com/sandeepsalwan1/medicalscribe
+  features:
+    - Implemented real-time transcription with Deepgram to capture patient interactions accurately.
+    - Employed AWS Medical NLP to extract ICD-10 codes from transcriptions, converting data into structured information.
+    - Utilized MultiOn to auto-fill medical forms with patient details and diagnostic codes, streamlining documentation.
+
+- name: Detect Seam
+  link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2510/DetectSeam
+  features:
+    - Architected Java image processing application with FIGMA.
+    - Achieved O(1) access time to enhance project speed.
+    - Utilized Java's AWT and I/O operations to improve user experience.
+
+- name: Smart Flashcards
+  link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2500/Smart%20Flashcards
+  features:
+    - Utilizes Machine Learning for sentiment analysis (e.g., Simple and ML classifiers).
+    - Dynamic state transitions based on user input with affirmation checking.
+    - Leverages features like interactive console and file reading for card decks.
+
+- name: Phishkill
+  link: https://github.com/sandeepsalwan1/phishkill
+  features:
+    - Developed a comprehensive application using Flask, Heroku, and APIs to analyze emails and calculate phishing risk percentages.
+    - Launched a live, user-friendly application accessible online with a streamlined landing page for easy use.
+    - Incorporated effective techniques/algorithms to evaluate email content, providing a reliable phishing probability score.

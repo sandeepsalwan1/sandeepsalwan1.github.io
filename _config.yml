@@ -1,0 +1,38 @@
+title: "Sandeep Salwan"
+author: "Sandeep"
+description: "SS"
+permalink: /:title/
+lang: "en"
+excerpt_separator: "\n\n\n"
+date_format: "%B %d, %Y"
+
+# Layout
+show_excerpts: false
+show_frame: true
+show_sidebar: false
+minimal: false
+
+# Menu
+navigation:
+  - {file: "index.html", title: "Home"}
+  - {file: "projects.md", title: "Projects"}
+
+external:
+  - {title: Mail, icon: envelope, url: "mailto:salwan.s@northeastern.edu"}
+  - {title: Github, icon: github, url: "https://github.com/sandeepsalwan1"}
+  - {title: Linkedin, icon: linkedin, url: "https://www.linkedin.com/in/sandeep-salwan/"}
+
+comments:
+
+plugins:
+ - jekyll-feed
+
+source: .
+destination: ./_site
+
+sass:
+  sass_dir: _sass
+  style: compressed
+
+extra_css:
+  - /assets/css/custom.css
