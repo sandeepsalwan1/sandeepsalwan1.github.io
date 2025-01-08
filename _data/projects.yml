@@ -1,6 +1,6 @@
 - name: AnimalCare
   link: https://github.com/sandeepsalwan1/animalcare
-  image: /assets/images/animalcare.png
+  image: /assets/images/animalcare.jpeg
   subtitle: "Zero-shot detection for animals"
   tags: ["Python", "Flask", "AI", "Computer Vision", "Docker"]
   features:
@@ -12,7 +12,7 @@
 
 - name: HealthTech
   link: https://github.com/sandeepsalwan1/healthtech
-  image: /assets/images/healthtech.png
+  image: /assets/images/healthtech.jpeg
   subtitle: "Platform leveraging LLM for personalized healthcare"
   tags: ["Python", "React", "Docker", "LLM", "Healthcare"]
   features:
@@ -24,7 +24,7 @@
 
 - name: HouseFinder AI
   link: https://github.com/sandeepsalwan1/housefinderai
-  image: /assets/images/housefinderai.png
+  image: /assets/images/housefinderai.jpeg
   subtitle: "Intelligent real estate aggregator"
   tags: ["Node.js", "React", "GPT", "API Integration", "AWS"]
   features:
@@ -36,7 +36,7 @@
 
 - name: HousePrice AI
   link: https://github.com/sandeepsalwan1/
-  image: /assets/images/housepriceai.png
+  image: /assets/images/housepriceai.jpeg
   subtitle: "Real-time housing price predictions"
   tags: ["Python", "Machine Learning", "Regression", "Data Science"]
   features:
@@ -48,7 +48,7 @@
 
 - name: Medical Scribe
   link: https://github.com/sandeepsalwan1/medicalscribe
-  image: /assets/images/medicalscribe.png
+  image: /assets/images/medicalscribe.jpeg
   subtitle: "Automated ICD-10 extraction from real-time transcription"
   tags: ["Python", "AWS", "NLP", "Healthcare", "Automation"]
   features:
@@ -60,7 +60,7 @@
 
 - name: Detect Seam
   link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2510/DetectSeam
-  image: /assets/images/detectseam.png
+  image: /assets/images/detectseam.jpeg
   subtitle: "Java-based image processing application"
   tags: ["Java", "Image Processing", "FIGMA", "Data Structures"]
   features:
@@ -72,7 +72,7 @@
 
 - name: Smart Flashcards
   link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2500/Smart%20Flashcards
-  image: /assets/images/smartflashcards.png
+  image: /assets/images/smartflashcards.jpeg
   subtitle: "Adaptive flashcards with ML-based difficulty adjustment"
   tags: ["Java", "Machine Learning", "CLI", "Automation"]
   features:
@@ -84,7 +84,7 @@
 
 - name: Phishkill
   link: https://github.com/sandeepsalwan1/phishkill
-  image: /assets/images/phishkill.png
+  image: /assets/images/phishkill.jpeg
   subtitle: "Flask-based phishing risk analyzer"
   tags: ["Python", "Flask", "Cybersecurity", "API Integration"]
   features:
