@@ -1,47 +1,47 @@
 - name: AnimalCare
-  link: https://github.com/your-user/animalcare
+  link: https://github.com/sandeepsalwan1/animalcare
   image: /assets/images/animalcare.jpeg
   subtitle: "Zero-shot detection for animals"
   tags: ["Python", "Flask", "AI", "Computer Vision", "Docker"]
 
 - name: HealthTech
-  link: https://github.com/your-user/healthtech
+  link: https://github.com/sandeepsalwan1/healthtech
   image: /assets/images/healthtech.jpeg
   subtitle: "Platform leveraging LLM for personalized healthcare"
   tags: ["Python", "React", "Docker", "LLM", "Healthcare"]
 
 - name: HouseFinder AI
-  link: https://github.com/your-user/housefinder-ai
+  link: https://github.com/sandeepsalwan1/housefinderai
   image: /assets/images/housefinderai.jpeg
   subtitle: "Intelligent real estate aggregator"
   tags: ["Node.js", "React", "GPT", "API Integration", "AWS"]
 
 - name: HousePrice AI
-  link: https://github.com/your-user/houseprice-ai
+  link: https://github.com/sandeepsalwan1/
   image: /assets/images/housepriceai.jpeg
   subtitle: "Real-time housing price predictions"
   tags: ["Python", "Machine Learning", "Regression", "Data Science"]
 
 - name: Medical Scribe
-  link: https://github.com/your-user/medicalscribe
+  link: https://github.com/sandeepsalwan1/medicalscribe
   image: /assets/images/medicalscribe.jpeg
   subtitle: "Automated ICD-10 extraction from real-time transcription"
   tags: ["Python", "AWS", "NLP", "Healthcare", "Automation"]
 
 - name: Detect Seam
-  link: https://github.com/your-user/detect-seam
+  link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2510/DetectSeam
   image: /assets/images/detectseam.jpeg
   subtitle: "Java-based image processing application"
   tags: ["Java", "Image Processing", "FIGMA", "Data Structures"]
 
 - name: Smart Flashcards
-  link: https://github.com/your-user/smart-flashcards
+  link: https://github.com/sandeepsalwan1/CSFinalProjects/tree/main/CS2500/Smart%20Flashcards
   image: /assets/images/smartflashcards.jpeg
   subtitle: "Adaptive flashcards with ML-based difficulty adjustment"
   tags: ["Java", "Machine Learning", "CLI", "Automation"]
 
 - name: Phishkill
-  link: https://github.com/your-user/phishkill
+  link: https://github.com/sandeepsalwan1/phishkill
   image: /assets/images/phishkill.jpeg
   subtitle: "Flask-based phishing risk analyzer"
   tags: ["Python", "Flask", "Cybersecurity", "API Integration"]
