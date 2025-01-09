@@ -1,47 +1,47 @@
 - name: AnimalCare
-  link: /projects/animalcare
+  link: https://github.com/your-user/animalcare
   image: /assets/images/animalcare.jpeg
   subtitle: "Zero-shot detection for animals"
   tags: ["Python", "Flask", "AI", "Computer Vision", "Docker"]
 
 - name: HealthTech
-  link: /projects/healthtech
+  link: https://github.com/your-user/healthtech
   image: /assets/images/healthtech.jpeg
   subtitle: "Platform leveraging LLM for personalized healthcare"
   tags: ["Python", "React", "Docker", "LLM", "Healthcare"]
 
 - name: HouseFinder AI
-  link: /projects/housefinder-ai
+  link: https://github.com/your-user/housefinder-ai
   image: /assets/images/housefinderai.jpeg
   subtitle: "Intelligent real estate aggregator"
   tags: ["Node.js", "React", "GPT", "API Integration", "AWS"]
 
 - name: HousePrice AI
-  link: /projects/houseprice-ai
+  link: https://github.com/your-user/houseprice-ai
   image: /assets/images/housepriceai.jpeg
   subtitle: "Real-time housing price predictions"
   tags: ["Python", "Machine Learning", "Regression", "Data Science"]
 
 - name: Medical Scribe
-  link: /projects/medicalscribe
+  link: https://github.com/your-user/medicalscribe
   image: /assets/images/medicalscribe.jpeg
   subtitle: "Automated ICD-10 extraction from real-time transcription"
   tags: ["Python", "AWS", "NLP", "Healthcare", "Automation"]
 
 - name: Detect Seam
-  link: /projects/detect-seam
+  link: https://github.com/your-user/detect-seam
   image: /assets/images/detectseam.jpeg
   subtitle: "Java-based image processing application"
   tags: ["Java", "Image Processing", "FIGMA", "Data Structures"]
 
 - name: Smart Flashcards
-  link: /projects/smart-flashcards
+  link: https://github.com/your-user/smart-flashcards
   image: /assets/images/smartflashcards.jpeg
   subtitle: "Adaptive flashcards with ML-based difficulty adjustment"
   tags: ["Java", "Machine Learning", "CLI", "Automation"]
 
 - name: Phishkill
-  link: /projects/phishkill
+  link: https://github.com/your-user/phishkill
   image: /assets/images/phishkill.jpeg
   subtitle: "Flask-based phishing risk analyzer"
   tags: ["Python", "Flask", "Cybersecurity", "API Integration"]
