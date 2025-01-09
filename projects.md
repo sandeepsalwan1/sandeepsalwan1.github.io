@@ -46,13 +46,19 @@ title: "Projects"
     grid-gap: 20px;
     margin-top: 2rem;
   }
+  @media (prefers-color-scheme: dark) {
+    .card {
+      background-color: #2c2c2c; /* #333, etc. */
+      color: #fff;
+    }
+  }
   .card {
     background-color: #fff;
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     text-decoration: none;
-    color: inherit;
+    color: #212121;
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
