@@ -5,6 +5,41 @@ title: "Projects"
 
 <!-- Optional inline CSS for a grid of cards -->
 <style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card {
+    /* existing .card styles remain as they are */
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0; /* so we can fade in */
+  }
+
+  /* Optional: Stagger the animation slightly so each card fades in at a different time */
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .card:nth-child(4) { animation-delay: 0.4s; }
+  .card:nth-child(5) { animation-delay: 0.5s; }
+  .card:nth-child(6) { animation-delay: 0.6s; }
+  .card:nth-child(7) { animation-delay: 0.7s; }
+  .card:nth-child(8) { animation-delay: 0.8s; }
+
+  .card img {
+    transition: transform 0.4s ease;
+  }
+
+  .card:hover img {
+    transform: scale(1.05); /* Slight zoom in */
+  }
+
   .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -20,10 +55,10 @@ title: "Projects"
     color: inherit;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
   }
   .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) scale(1.02);
     box-shadow: 0 8px 15px rgba(0,0,0,0.15);
   }
   .card img {
