@@ -1,5 +1,5 @@
 - name: AnimalCare
-  link: https://github.com/sandeepsalwan1/animalcare
+  link: https://github.com/sandeepsalwan1/animalcare 
   image: /assets/images/animalcare.jpeg
   subtitle: "Zero-shot detection for animals"
   tags: ["Python", "Flask", "AI", "Computer Vision", "Docker"]
