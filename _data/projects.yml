@@ -23,7 +23,7 @@
   tags: ["Python", "Machine Learning", "Regression", "Data Science"]
 
 - name: Medical Scribe
-  link: https://github.com/sandeepsalwan1/medicalscribe
+  link: https://github.com/sandeepsalwan1/MedScribe
   image: /assets/images/medicalscribe.jpeg
   subtitle: "Automated ICD-10 extraction from real-time transcription"
   tags: ["Python", "AWS", "NLP", "Healthcare", "Automation"]
