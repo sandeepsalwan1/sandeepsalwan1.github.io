@@ -6,11 +6,13 @@
 <meta name="author" content="{{ page.author | default: site.author | escape }}">
 <meta name="generator" content="Jekyll v{{ jekyll.version }}">
 <link rel="canonical" href="{{ page.url | absolute_url }}">
+<link rel="icon" href="{{ "/assets/favicon.ico" | relative_url }}" type="image/x-icon">
 {% if site.show_frame %}
 <link rel="stylesheet" href="{{ "/assets/css/frame.css" | relative_url }}">
 {% else %}
 <link rel="stylesheet" href="{{ "/assets/css/index.css" | relative_url }}">
 {% endif %}
+<link rel="stylesheet" href="{{ "/assets/css/network.css" | relative_url }}">
 {% if site.plugins contains "jekyll-feed" %}<link rel="alternate" href="{{ site.feed.path | default: "/feed.xml" | relative_url }}" type="application/atom+xml" title="{{ site.title }}">{% endif %}
 {% if page.mathjax or site.mathjax %}
 <link rel="stylesheet" href="{{ "/assets/katex/katex.min.css" | relative_url }}">
@@ -32,6 +34,12 @@
   </a>
   {% include menu.html menu=pages %}
 </header>
+
+{% if page.url == "/" %}
+<div class="network-background">
+  <canvas id="network-canvas"></canvas>
+</div>
+{% endif %}
 
 {{ content }}
 
@@ -56,5 +64,49 @@
   }, 2250);
 </script>
 
+{% if page.url == "/" %}
+<script src="{{ "/assets/js/framework.0c239260661ae1d12aa2.js" | relative_url }}"></script>
+<script src="{{ "/assets/js/b5f2ed29.c397f7e1879d1927fe87.js" | relative_url }}"></script>
+<script src="{{ "/assets/js/network.js" | relative_url }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const canvas = document.getElementById('network-canvas');
+  const ctx = canvas.getContext('2d');
+  let animationStarted = false;
+  
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Restart animation if needed
+    if (animationStarted && window.startNetworkAnimation) {
+      window.startNetworkAnimation(canvas);
+    }
+  }
+  
+  window.addEventListener('resize', function() {
+    // Use debounce to avoid too many redraws
+    if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(function() {
+      resizeCanvas();
+    }, 200);
+  });
+  
+  // Initial canvas sizing
+  resizeCanvas();
+  
+  // Add click handlers to the whole document to create more nodes at click positions
+  document.addEventListener('click', function(e) {
+    // We'll handle this in the network.js file
+  });
+  
+  // Start the animation
+  if (window.startNetworkAnimation) {
+    window.startNetworkAnimation(canvas);
+    animationStarted = true;
+  }
+});
+</script>
+{% endif %}
 
 </html>

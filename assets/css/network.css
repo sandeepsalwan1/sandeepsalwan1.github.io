@@ -1,0 +1,52 @@
+.network-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  background-color: #161616; /* Dark background like williamlin.io */
+}
+
+#network-canvas {
+  width: 100%;
+  height: 100%;
+  opacity: 1; /* Full opacity for better visibility */
+  cursor: pointer;
+}
+
+/* Make sure content is properly positioned above the canvas */
+.post, .post-content, header, footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Add a subtle fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#network-canvas {
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Glowing effect for nodes */
+@keyframes glow {
+  0% { filter: drop-shadow(0 0 5px rgba(100, 180, 255, 0.8)); }
+  50% { filter: drop-shadow(0 0 15px rgba(100, 180, 255, 0.8)); }
+  100% { filter: drop-shadow(0 0 5px rgba(100, 180, 255, 0.8)); }
+}
+
+/* Add blur for connections */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Custom cursor to indicate clickable area */
+.network-background:hover {
+  cursor: pointer;
+} 

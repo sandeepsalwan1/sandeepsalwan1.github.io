@@ -1,0 +1,20 @@
+current directory: /Users/sandeep/projects/sandeepsalwan1.github.io-1/vendor/bundle/ruby/3.2.0/gems/eventmachine-1.2.7/ext/fastfilereader
+/opt/homebrew/opt/ruby@3.2/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/sandeep/projects/sandeepsalwan1.github.io-1/vendor/bundle/ruby/3.2.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250328-62109-gdsaxv sitelibdir\=./.gem.20250328-62109-gdsaxv clean
+
+current directory: /Users/sandeep/projects/sandeepsalwan1.github.io-1/vendor/bundle/ruby/3.2.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250328-62109-gdsaxv sitelibdir\=./.gem.20250328-62109-gdsaxv
+compiling mapper.cpp
+compiling rubymain.cpp
+linking shared-object fastfilereaderext.bundle
+ld: warning: ignoring duplicate libraries: '-lruby.3.2'
+
+current directory: /Users/sandeep/projects/sandeepsalwan1.github.io-1/vendor/bundle/ruby/3.2.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250328-62109-gdsaxv sitelibdir\=./.gem.20250328-62109-gdsaxv install
+/usr/bin/install -c -m 0755 fastfilereaderext.bundle ./.gem.20250328-62109-gdsaxv
+
+current directory: /Users/sandeep/projects/sandeepsalwan1.github.io-1/vendor/bundle/ruby/3.2.0/gems/eventmachine-1.2.7/ext/fastfilereader
+make DESTDIR\= sitearchdir\=./.gem.20250328-62109-gdsaxv sitelibdir\=./.gem.20250328-62109-gdsaxv clean
