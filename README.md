@@ -6,7 +6,7 @@ This site is built with Jekyll 4.2.x. There are two scripts to help run the site
 
 ### Option 1: Using Bundler (Preferred)
 
-```bash
+ ```bash
 ./start-jekyll.sh [port]
 ```
 
