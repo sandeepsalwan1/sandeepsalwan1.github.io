@@ -12,10 +12,15 @@ const config = {
   clickForce: 80,
   mouseInteraction: true,
   hoverEffect: true,
-  clickGlowDuration: 1500,
+  clickGlowDuration: 1500, // Time in ms to show blue highlight
   pulseDuration: 1000,
   maxParticles: 300,
-  newParticleChance: 0.7
+  newParticleChance: 0.9, // Increased chance to create new particles
+  // Path animation parameters
+  pathAnimationSpeed: 0.006, // Slowed down animation speed
+  pathColor: 'rgba(100, 180, 255, 0.8)', // Blue path color
+  pathWidth: 2, // Path width
+  pathHeadSize: 6 // Size of the "head" of the path animation
 };
 
 // Particle class to manage individual nodes
@@ -33,6 +38,8 @@ class Particle {
     this.pulseTime = 0;
     this.age = 0;
     this.isNew = isNew;
+    this.visited = false; // Track if particle has been visited in pathfinding
+    this.active = true; // Particle is active for pathfinding
   }
 
   initAtPosition(x, y) {
@@ -62,12 +69,14 @@ class Particle {
   }
 
   highlight() {
-    this.isHighlighted = true;
-    this.highlightTime = config.clickGlowDuration;
-    this.pulseTime = config.pulseDuration;
+    if (!this.isHighlighted) {
+      this.isHighlighted = true;
+      this.highlightTime = config.clickGlowDuration;
+      this.pulseTime = config.pulseDuration;
+    }
   }
 
-  update(mouseX, mouseY, clicking) {
+  update(mouseX, mouseY, clicking, deltaTime) {
     // Update age
     this.age++;
     
@@ -81,15 +90,19 @@ class Particle {
 
     // Reduce highlight time
     if (this.highlightTime > 0) {
-      this.highlightTime -= 16;
+      this.highlightTime -= deltaTime;
       if (this.highlightTime <= 0) {
         this.isHighlighted = false;
+        this.highlightTime = 0;
       }
     }
 
     // Update pulse time
     if (this.pulseTime > 0) {
-      this.pulseTime -= 16;
+      this.pulseTime -= deltaTime;
+      if (this.pulseTime <= 0) {
+        this.pulseTime = 0;
+      }
     }
 
     // Mouse interaction
@@ -151,6 +164,13 @@ window.startNetworkAnimation = function(canvas) {
   let mouseY = null;
   let clicking = false;
   let clickQueue = [];
+  let pathAnimations = []; // Store active path animations
+  
+  // Prevent runtime errors by checking if canvas exists
+  if (!canvas || !ctx) {
+    console.warn('Canvas or context is not available');
+    return;
+  }
 
   // Create particles
   for (let i = 0; i < config.particleCount; i++) {
@@ -167,7 +187,7 @@ window.startNetworkAnimation = function(canvas) {
           const dy = particle.y - otherParticle.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < config.connectionDistance * 1.5) {
+          if (distance < config.connectionDistance) {
             particle.connected.push(otherParticle);
           }
         }
@@ -178,33 +198,151 @@ window.startNetworkAnimation = function(canvas) {
   // Initial connections
   updateConnections();
 
+  // Edge class for path animations
+  class AnimatedEdge {
+    constructor(from, to) {
+      this.from = from;
+      this.to = to;
+      this.progress = 0;
+      this.done = false;
+      
+      // Calculate distance for speed normalization
+      const dx = particles[from].x - particles[to].x;
+      const dy = particles[from].y - particles[to].y;
+      this.distance = Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    update(deltaTime) {
+      // Normalize animation speed based on distance 
+      // Slower for longer distances, but with a minimum speed
+      const speed = config.pathAnimationSpeed;
+      this.progress += speed * (deltaTime / 16);
+      
+      if (this.progress >= 1) {
+        this.done = true;
+        // Highlight destination node when reached
+        particles[this.to].highlight();
+        return true;
+      }
+      return false;
+    }
+    
+    draw(ctx) {
+      const fromParticle = particles[this.from];
+      const toParticle = particles[this.to];
+      
+      // Calculate animation head position
+      const x = fromParticle.x + (toParticle.x - fromParticle.x) * this.progress;
+      const y = fromParticle.y + (toParticle.y - fromParticle.y) * this.progress;
+      
+      // Draw animated line with fading tail
+      ctx.beginPath();
+      ctx.strokeStyle = config.pathColor;
+      ctx.lineWidth = config.pathWidth;
+      
+      // Only draw the portion of the line that has been "traveled"
+      ctx.moveTo(fromParticle.x, fromParticle.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      
+      // Draw animation head
+      ctx.beginPath();
+      ctx.arc(x, y, config.pathHeadSize, 0, Math.PI * 2);
+      ctx.fillStyle = config.pathColor;
+      ctx.fill();
+    }
+  }
+
+  // Path finder class for animating signal propagation
+  class PathFinder {
+    constructor(startNodeIndex) {
+      this.visited = new Set(); // Keeps track of visited nodes
+      this.edges = []; // Active animated edges
+      this.queue = []; // Queue of nodes to visit next
+      this.active = true;
+      this.startTime = Date.now();
+      
+      // Start from the given node
+      this.visited.add(startNodeIndex);
+      this.expandFromNode(startNodeIndex);
+    }
+    
+    expandFromNode(nodeIndex) {
+      const currentParticle = particles[nodeIndex];
+      
+      // Find all connected particles
+      particles.forEach((particle, index) => {
+        // Skip if already visited
+        if (this.visited.has(index) || !particle.active) return;
+        
+        const dx = currentParticle.x - particle.x;
+        const dy = currentParticle.y - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // If within connection distance, add to animations
+        if (distance < config.connectionDistance) {
+          this.edges.push(new AnimatedEdge(nodeIndex, index));
+          this.visited.add(index); // Mark as visited immediately to avoid duplicate visits
+        }
+      });
+    }
+    
+    update(deltaTime) {
+      // Process all active edges
+      for (let i = this.edges.length - 1; i >= 0; i--) {
+        const edge = this.edges[i];
+        const completed = edge.update(deltaTime);
+        
+        if (completed) {
+          // When an edge animation completes, expand from the destination node
+          this.queue.push(edge.to);
+          // Remove the completed edge
+          this.edges.splice(i, 1);
+        }
+      }
+      
+      // Process any nodes in the queue
+      while (this.queue.length > 0) {
+        this.expandFromNode(this.queue.shift());
+      }
+      
+      // If no more edges, this path finder is done
+      const isComplete = this.edges.length === 0;
+      
+      // If completed, ensure we clean up properly by unhighlighting after a delay
+      if (isComplete && Date.now() - this.startTime > 10000) {
+        // Animation is completely done, reset all nodes to normal state
+        this.visited.forEach(index => {
+          if (particles[index] && particles[index].isHighlighted) {
+            particles[index].highlightTime = Math.min(particles[index].highlightTime, 500);
+          }
+        });
+      }
+      
+      return isComplete;
+    }
+    
+    draw(ctx) {
+      this.edges.forEach(edge => edge.draw(ctx));
+    }
+  }
+
   // Function to add a new particle at a specific position
   function addParticle(x, y) {
     if (particles.length < config.maxParticles && Math.random() < config.newParticleChance) {
       const newParticle = new Particle(canvas, x, y, true);
+      const newIndex = particles.length;
       particles.push(newParticle);
       
-      // Update connections for this new particle
-      particles.forEach(otherParticle => {
-        if (newParticle !== otherParticle) {
-          const dx = newParticle.x - otherParticle.x;
-          const dy = newParticle.y - otherParticle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < config.connectionDistance * 1.5) {
-            newParticle.connected.push(otherParticle);
-            otherParticle.connected.push(newParticle);
-          }
-        }
-      });
+      // Create a new path animation starting from this particle
+      pathAnimations.push(new PathFinder(newIndex));
       
-      // Highlight a few random connected particles
-      newParticle.connected.forEach(connectedParticle => {
-        if (Math.random() > 0.7) {
-          connectedParticle.highlight();
-        }
-      });
+      // Update connections
+      updateConnections();
+      
+      return newIndex;
     }
+    return -1;
   }
 
   // Mouse event listeners
@@ -252,71 +390,118 @@ window.startNetworkAnimation = function(canvas) {
     clicking = false;
   });
 
-  // Animation loop
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  let lastTime = 0;
+  let animationFrameId = null;
 
-    // Process any clicks in the queue
-    while (clickQueue.length > 0) {
-      const click = clickQueue.shift();
-      addParticle(click.x, click.y);
+  // Safer requestAnimationFrame usage
+  function safeRequestAnimationFrame(callback) {
+    try {
+      return requestAnimationFrame(callback);
+    } catch (e) {
+      console.warn('Error requesting animation frame:', e);
+      return setTimeout(callback, 16);
     }
-
-    // Draw connections first
-    particles.forEach(particle => {
-      particles.forEach(otherParticle => {
-        if (particle === otherParticle) return;
-        
-        const dx = particle.x - otherParticle.x;
-        const dy = particle.y - otherParticle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < config.connectionDistance) {
-          const opacity = 1 - (distance / config.connectionDistance);
-          let strokeStyle = `rgba(255, 255, 255, ${opacity * 0.15})`;
-          
-          if (particle.isHighlighted && otherParticle.isHighlighted) {
-            strokeStyle = `rgba(100, 180, 255, ${opacity * 0.5})`;
-          } else if (particle.isHighlighted || otherParticle.isHighlighted) {
-            strokeStyle = `rgba(100, 180, 255, ${opacity * 0.3})`;
-          }
-          
-          ctx.beginPath();
-          ctx.moveTo(particle.x, particle.y);
-          ctx.lineTo(otherParticle.x, otherParticle.y);
-          ctx.strokeStyle = strokeStyle;
-          ctx.stroke();
-        }
-      });
-    });
-
-    // Update and draw particles on top of connections
-    particles.forEach(particle => {
-      particle.update(mouseX, mouseY, clicking);
-
-      const currentSize = particle.getCurrentSize();
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);
-      ctx.fillStyle = particle.getCurrentColor();
-      
-      if (particle.isHighlighted) {
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(100, 180, 255, 0.8)';
-      } else {
-        ctx.shadowBlur = 0;
-      }
-      
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
-
-    // Update connections periodically
-    if (Math.random() < 0.01) {
-      updateConnections();
-    }
-
-    requestAnimationFrame(animate);
   }
 
-  animate();
+  // Animation loop
+  function animate(currentTime) {
+    try {
+      // Calculate delta time
+      const deltaTime = lastTime ? Math.min(currentTime - lastTime, 100) : 16;
+      lastTime = currentTime;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Process any clicks in the queue
+      while (clickQueue.length > 0) {
+        const click = clickQueue.shift();
+        addParticle(click.x, click.y);
+      }
+
+      // Draw static connections first (normal white connections)
+      particles.forEach(particle => {
+        particles.forEach(otherParticle => {
+          if (particle === otherParticle) return;
+          
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < config.connectionDistance) {
+            const opacity = 1 - (distance / config.connectionDistance);
+            const strokeStyle = `rgba(255, 255, 255, ${opacity * 0.15})`;
+            
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = strokeStyle;
+            ctx.stroke();
+          }
+        });
+      });
+
+      // Update and draw path animations
+      for (let i = pathAnimations.length - 1; i >= 0; i--) {
+        const isComplete = pathAnimations[i].update(deltaTime);
+        pathAnimations[i].draw(ctx);
+        
+        // Remove completed animations after a delay to ensure transitions finish
+        if (isComplete && pathAnimations[i].edges.length === 0) {
+          pathAnimations.splice(i, 1);
+        }
+      }
+
+      // Update and draw particles on top of connections
+      particles.forEach(particle => {
+        particle.update(mouseX, mouseY, clicking, deltaTime);
+
+        const currentSize = particle.getCurrentSize();
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);
+        ctx.fillStyle = particle.getCurrentColor();
+        
+        if (particle.isHighlighted) {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = 'rgba(100, 180, 255, 0.8)';
+        } else {
+          ctx.shadowBlur = 0;
+        }
+        
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Update connections periodically
+      if (Math.random() < 0.01) {
+        updateConnections();
+      }
+
+      // Continue animation loop
+      animationFrameId = safeRequestAnimationFrame(animate);
+    } catch (e) {
+      console.error('Animation error:', e);
+      // Try to recover
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      setTimeout(() => {
+        lastTime = 0;
+        animationFrameId = safeRequestAnimationFrame(animate);
+      }, 1000);
+    }
+  }
+
+  // Start animation safely
+  try {
+    animationFrameId = safeRequestAnimationFrame(animate);
+  } catch (e) {
+    console.warn('Could not start animation:', e);
+  }
+  
+  // Safety cleanup function
+  window.addEventListener('beforeunload', () => {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+  });
 }; 

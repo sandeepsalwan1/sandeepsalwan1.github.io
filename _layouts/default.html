@@ -70,40 +70,46 @@
 <script src="{{ "/assets/js/network.js" | relative_url }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('network-canvas');
-  const ctx = canvas.getContext('2d');
-  let animationStarted = false;
-  
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  try {
+    const canvas = document.getElementById('network-canvas');
     
-    // Restart animation if needed
-    if (animationStarted && window.startNetworkAnimation) {
-      window.startNetworkAnimation(canvas);
+    if (!canvas) {
+      console.warn('Network canvas element not found');
+      return;
     }
-  }
-  
-  window.addEventListener('resize', function() {
-    // Use debounce to avoid too many redraws
-    if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
-    this.resizeTimeout = setTimeout(function() {
-      resizeCanvas();
-    }, 200);
-  });
-  
-  // Initial canvas sizing
-  resizeCanvas();
-  
-  // Add click handlers to the whole document to create more nodes at click positions
-  document.addEventListener('click', function(e) {
-    // We'll handle this in the network.js file
-  });
-  
-  // Start the animation
-  if (window.startNetworkAnimation) {
-    window.startNetworkAnimation(canvas);
-    animationStarted = true;
+    
+    // Function to safely resize canvas
+    function resizeCanvas() {
+      try {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      } catch (e) {
+        console.warn('Error resizing canvas:', e);
+      }
+    }
+    
+    // Handle window resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        resizeCanvas();
+      }, 200);
+    });
+    
+    // Initial canvas sizing
+    resizeCanvas();
+    
+    // Start the animation with a slight delay to ensure everything is loaded
+    setTimeout(function() {
+      if (window.startNetworkAnimation) {
+        window.startNetworkAnimation(canvas);
+      } else {
+        console.warn('Network animation function not found');
+      }
+    }, 100);
+  } catch (e) {
+    console.error('Error initializing network animation:', e);
   }
 });
 </script>

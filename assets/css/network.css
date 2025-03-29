@@ -14,12 +14,23 @@
   height: 100%;
   opacity: 1; /* Full opacity for better visibility */
   cursor: pointer;
+  display: block; /* Ensures canvas is properly displayed */
+  image-rendering: optimizeSpeed; /* Improves rendering performance */
 }
 
 /* Make sure content is properly positioned above the canvas */
 .post, .post-content, header, footer {
   position: relative;
   z-index: 1;
+  color: #ffffff; /* White text for better contrast against dark background */
+}
+
+/* Add a subtle background to text content for better readability */
+.post-content {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px auto;
 }
 
 /* Add a subtle fade-in animation */
@@ -39,7 +50,7 @@
   100% { filter: drop-shadow(0 0 5px rgba(100, 180, 255, 0.8)); }
 }
 
-/* Add blur for connections */
+/* Add pulse animation for particles */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
@@ -49,4 +60,22 @@
 /* Custom cursor to indicate clickable area */
 .network-background:hover {
   cursor: pointer;
+}
+
+/* Make links more visible against dark background */
+a {
+  color: #64b4ff; /* Light blue color */
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Additional styles for highlighted text against dark background */
+.highlight {
+  color: #64b4ff;
+  text-shadow: 0 0 5px rgba(100, 180, 255, 0.4);
 } 
