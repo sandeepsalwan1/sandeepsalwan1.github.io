@@ -12,15 +12,16 @@ const config = {
   clickForce: 80,
   mouseInteraction: true,
   hoverEffect: true,
-  clickGlowDuration: 1500, // Time in ms to show blue highlight
-  pulseDuration: 1000,
+  clickGlowDuration: 1000, // Duration for highlight time
+  pulseDuration: 800,
   maxParticles: 300,
   newParticleChance: 0.9, // Increased chance to create new particles
   // Path animation parameters
-  pathAnimationSpeed: 0.002, // Even slower animation speed to match williamlin.io
+  pathAnimationSpeed: 0.6, // Fixed animation speed
   pathColor: 'rgba(100, 180, 255, 0.8)', // Blue path color
-  pathWidth: 1.5, // Thinner path width to match williamlin.io
-  pathTrailOpacity: 0.2 // Opacity for the trail part of the animation
+  pathWidth: 1.5, // Thinner path width
+  pathLineLength: 0.2, // Length of the moving line segment (0.2 = 20% of total distance)
+  pathTrailOpacity: 0.0 // No trail (williamlin.io doesn't use trails)
 };
 
 // Particle class to manage individual nodes
@@ -76,17 +77,39 @@ class Particle {
     }
   }
 
+  unhighlight() {
+    this.isHighlighted = false;
+    this.highlightTime = 0;
+    this.pulseTime = 0;
+  }
+
   update(mouseX, mouseY, clicking, deltaTime) {
     // Update age
     this.age++;
     
-    // Update position
+    // Update position with FIXED speed - never increase speed
     this.x += this.vx;
     this.y += this.vy;
 
-    // Bounce off walls
-    if (this.x < 0 || this.x > this.canvas.width) this.vx *= -1;
-    if (this.y < 0 || this.y > this.canvas.height) this.vy *= -1;
+    // Bounce off walls without changing speed magnitude
+    if (this.x < 0 || this.x > this.canvas.width) {
+      this.vx = -this.vx;
+    }
+    if (this.y < 0 || this.y > this.canvas.height) {
+      this.vy = -this.vy;
+    }
+
+    // Maintain constant speed
+    const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (currentSpeed !== 0) {
+      const targetSpeed = (Math.random() - 0.5) * config.particleSpeed * 2;
+      // Only apply minimal corrections to maintain consistent speed
+      const correction = targetSpeed / currentSpeed;
+      if (Math.abs(correction - 1) > 0.1) {
+        this.vx *= correction;
+        this.vy *= correction;
+      }
+    }
 
     // Reduce highlight time - ensure it actually decreases
     if (this.highlightTime > 0) {
@@ -94,6 +117,8 @@ class Particle {
       if (this.highlightTime <= 0) {
         this.isHighlighted = false;
         this.highlightTime = 0;
+        // Explicitly reset color to non-highlighted state
+        this.color = config.particleColor;
       }
     }
 
@@ -118,14 +143,9 @@ class Particle {
         this.size = this.originalSize;
       }
 
-      // Click effect
+      // Click effect - but don't change speed
       if (clicking && distance < config.clickRadius) {
         this.highlight();
-        
-        const force = (config.clickRadius - distance) / config.clickRadius * config.clickForce;
-        const angle = Math.atan2(dy, dx);
-        this.vx += Math.cos(angle) * force * 0.01;
-        this.vy += Math.sin(angle) * force * 0.01;
       }
     }
   }
@@ -192,7 +212,7 @@ window.startNetworkAnimation = function(canvas) {
   // Initial connections
   updateConnections();
 
-  // Edge class for path animations - modified to use thin lines like williamlin.io
+  // Edge class for path animations - completely revamped to match williamlin.io
   class AnimatedEdge {
     constructor(from, to) {
       this.from = from;
@@ -200,10 +220,13 @@ window.startNetworkAnimation = function(canvas) {
       this.progress = 0;
       this.done = false;
       
-      // Calculate distance for consistent animation timing
+      // Calculate distance for animation timing
       const dx = particles[from].x - particles[to].x;
       const dy = particles[from].y - particles[to].y;
       this.distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Highlight the source node immediately
+      particles[from].highlight();
     }
     
     update(deltaTime) {
@@ -223,20 +246,32 @@ window.startNetworkAnimation = function(canvas) {
       const fromParticle = particles[this.from];
       const toParticle = particles[this.to];
       
-      // Draw the thin line with no animation head (just like williamlin.io)
-      ctx.beginPath();
-      ctx.strokeStyle = config.pathColor;
-      ctx.lineWidth = config.pathWidth;
+      // Calculate the current position of the moving line segment
+      const lineLength = config.pathLineLength; // Length of the animated line segment
       
-      // Only draw the portion of the line that has been "traveled"
-      ctx.moveTo(fromParticle.x, fromParticle.y);
+      // Calculate start and end points of the visible segment
+      let startPoint = this.progress - lineLength;
+      let endPoint = this.progress;
       
-      // Calculate current animated position
-      const animX = fromParticle.x + (toParticle.x - fromParticle.x) * this.progress;
-      const animY = fromParticle.y + (toParticle.y - fromParticle.y) * this.progress;
+      // Only draw if the line segment is visible
+      if (startPoint < 0) startPoint = 0;
+      if (endPoint > 1) endPoint = 1;
       
-      ctx.lineTo(animX, animY);
-      ctx.stroke();
+      // Only draw if there's a visible segment
+      if (endPoint > startPoint) {
+        const startX = fromParticle.x + (toParticle.x - fromParticle.x) * startPoint;
+        const startY = fromParticle.y + (toParticle.y - fromParticle.y) * startPoint;
+        const endX = fromParticle.x + (toParticle.x - fromParticle.x) * endPoint;
+        const endY = fromParticle.y + (toParticle.y - fromParticle.y) * endPoint;
+        
+        // Draw the line segment
+        ctx.beginPath();
+        ctx.strokeStyle = config.pathColor;
+        ctx.lineWidth = config.pathWidth;
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
     }
   }
 
@@ -248,7 +283,8 @@ window.startNetworkAnimation = function(canvas) {
       this.queue = []; // Queue of nodes to visit next
       this.active = true;
       this.startTime = Date.now();
-      this.completedEdges = new Set(); // Keep track of completed edges for trail effect
+      this.completedEdges = new Set(); // Keep track of completed edges
+      this.cleanupScheduled = false;
       
       // Start from the given node
       this.visited.add(startNodeIndex);
@@ -273,6 +309,26 @@ window.startNetworkAnimation = function(canvas) {
           this.visited.add(index); // Mark as visited immediately to avoid duplicate visits
         }
       });
+      
+      // If no edges were created, ensure this node gets unhighlighted eventually
+      if (this.edges.length === 0 && !this.cleanupScheduled) {
+        this.cleanupScheduled = true;
+        setTimeout(() => {
+          this.cleanupHighlights();
+        }, 1500);
+      }
+    }
+    
+    cleanupHighlights() {
+      // Force unhighlight all visited nodes
+      this.visited.forEach(index => {
+        if (particles[index]) {
+          particles[index].unhighlight();
+          // Explicitly reset color to ensure it's not stuck blue
+          particles[index].color = config.particleColor;
+          particles[index].isHighlighted = false;
+        }
+      });
     }
     
     update(deltaTime) {
@@ -284,7 +340,7 @@ window.startNetworkAnimation = function(canvas) {
         if (completed) {
           // When an edge animation completes, expand from the destination node
           this.queue.push(edge.to);
-          // Store completed edge for trail effect
+          // Track completed edges
           this.completedEdges.add(`${edge.from}-${edge.to}`);
           // Remove the completed edge from active animations
           this.edges.splice(i, 1);
@@ -296,17 +352,15 @@ window.startNetworkAnimation = function(canvas) {
         this.expandFromNode(this.queue.shift());
       }
       
-      // If no more edges, this path finder is done
+      // Check if all animations are done
       const isComplete = this.edges.length === 0;
       
-      // If completed, ensure we clean up properly after a shorter delay
-      if (isComplete && Date.now() - this.startTime > 5000) {
-        // Animation is completely done, reset all nodes to normal state
-        this.visited.forEach(index => {
-          if (particles[index] && particles[index].isHighlighted) {
-            particles[index].highlightTime = Math.min(particles[index].highlightTime, 300);
-          }
-        });
+      // If completed and enough time has passed, schedule cleanup
+      if (isComplete && !this.cleanupScheduled && Date.now() - this.startTime > 2000) {
+        this.cleanupScheduled = true;
+        setTimeout(() => {
+          this.cleanupHighlights();
+        }, 1000);
         return true;
       }
       
@@ -314,29 +368,8 @@ window.startNetworkAnimation = function(canvas) {
     }
     
     draw(ctx) {
-      // Draw active animated edges
+      // Draw only active animated edges
       this.edges.forEach(edge => edge.draw(ctx));
-      
-      // Draw completed edges with lower opacity (trail effect)
-      if (this.completedEdges.size > 0 && Date.now() - this.startTime < 3000) {
-        ctx.save();
-        ctx.globalAlpha = config.pathTrailOpacity;
-        ctx.strokeStyle = config.pathColor;
-        ctx.lineWidth = config.pathWidth * 0.8;
-        
-        this.completedEdges.forEach(edgeKey => {
-          const [fromIdx, toIdx] = edgeKey.split('-').map(Number);
-          const fromParticle = particles[fromIdx];
-          const toParticle = particles[toIdx];
-          
-          ctx.beginPath();
-          ctx.moveTo(fromParticle.x, fromParticle.y);
-          ctx.lineTo(toParticle.x, toParticle.y);
-          ctx.stroke();
-        });
-        
-        ctx.restore();
-      }
     }
   }
 
@@ -348,10 +381,19 @@ window.startNetworkAnimation = function(canvas) {
       particles.push(newParticle);
       
       // Create a new path animation starting from this particle
-      pathAnimations.push(new PathFinder(newIndex));
+      const pathFinder = new PathFinder(newIndex);
+      pathAnimations.push(pathFinder);
       
       // Update connections
       updateConnections();
+      
+      // Ensure the highlight is temporary
+      setTimeout(() => {
+        if (newParticle && newParticle.isHighlighted) {
+          newParticle.unhighlight();
+          newParticle.color = config.particleColor;
+        }
+      }, config.clickGlowDuration + 500);
       
       return newIndex;
     }
@@ -441,6 +483,7 @@ window.startNetworkAnimation = function(canvas) {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < config.connectionDistance) {
+            // Always draw connections, even for highlighted nodes
             const opacity = 1 - (distance / config.connectionDistance);
             const strokeStyle = `rgba(255, 255, 255, ${opacity * 0.15})`;
             
@@ -448,6 +491,7 @@ window.startNetworkAnimation = function(canvas) {
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(otherParticle.x, otherParticle.y);
             ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = 1;
             ctx.stroke();
           }
         });
