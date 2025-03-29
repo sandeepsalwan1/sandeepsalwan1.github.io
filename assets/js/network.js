@@ -17,10 +17,10 @@ const config = {
   maxParticles: 300,
   newParticleChance: 0.9, // Increased chance to create new particles
   // Path animation parameters
-  pathAnimationSpeed: 0.006, // Slowed down animation speed
+  pathAnimationSpeed: 0.002, // Even slower animation speed to match williamlin.io
   pathColor: 'rgba(100, 180, 255, 0.8)', // Blue path color
-  pathWidth: 2, // Path width
-  pathHeadSize: 6 // Size of the "head" of the path animation
+  pathWidth: 1.5, // Thinner path width to match williamlin.io
+  pathTrailOpacity: 0.2 // Opacity for the trail part of the animation
 };
 
 // Particle class to manage individual nodes
@@ -88,7 +88,7 @@ class Particle {
     if (this.x < 0 || this.x > this.canvas.width) this.vx *= -1;
     if (this.y < 0 || this.y > this.canvas.height) this.vy *= -1;
 
-    // Reduce highlight time
+    // Reduce highlight time - ensure it actually decreases
     if (this.highlightTime > 0) {
       this.highlightTime -= deltaTime;
       if (this.highlightTime <= 0) {
@@ -121,12 +121,6 @@ class Particle {
       // Click effect
       if (clicking && distance < config.clickRadius) {
         this.highlight();
-        
-        this.connected.forEach(particle => {
-          if (Math.random() > 0.5) {
-            particle.highlight();
-          }
-        });
         
         const force = (config.clickRadius - distance) / config.clickRadius * config.clickForce;
         const angle = Math.atan2(dy, dx);
@@ -198,7 +192,7 @@ window.startNetworkAnimation = function(canvas) {
   // Initial connections
   updateConnections();
 
-  // Edge class for path animations
+  // Edge class for path animations - modified to use thin lines like williamlin.io
   class AnimatedEdge {
     constructor(from, to) {
       this.from = from;
@@ -206,17 +200,15 @@ window.startNetworkAnimation = function(canvas) {
       this.progress = 0;
       this.done = false;
       
-      // Calculate distance for speed normalization
+      // Calculate distance for consistent animation timing
       const dx = particles[from].x - particles[to].x;
       const dy = particles[from].y - particles[to].y;
       this.distance = Math.sqrt(dx * dx + dy * dy);
     }
     
     update(deltaTime) {
-      // Normalize animation speed based on distance 
-      // Slower for longer distances, but with a minimum speed
-      const speed = config.pathAnimationSpeed;
-      this.progress += speed * (deltaTime / 16);
+      // Fixed, slow animation speed regardless of distance
+      this.progress += config.pathAnimationSpeed * (deltaTime / 16);
       
       if (this.progress >= 1) {
         this.done = true;
@@ -231,25 +223,20 @@ window.startNetworkAnimation = function(canvas) {
       const fromParticle = particles[this.from];
       const toParticle = particles[this.to];
       
-      // Calculate animation head position
-      const x = fromParticle.x + (toParticle.x - fromParticle.x) * this.progress;
-      const y = fromParticle.y + (toParticle.y - fromParticle.y) * this.progress;
-      
-      // Draw animated line with fading tail
+      // Draw the thin line with no animation head (just like williamlin.io)
       ctx.beginPath();
       ctx.strokeStyle = config.pathColor;
       ctx.lineWidth = config.pathWidth;
       
       // Only draw the portion of the line that has been "traveled"
       ctx.moveTo(fromParticle.x, fromParticle.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
       
-      // Draw animation head
-      ctx.beginPath();
-      ctx.arc(x, y, config.pathHeadSize, 0, Math.PI * 2);
-      ctx.fillStyle = config.pathColor;
-      ctx.fill();
+      // Calculate current animated position
+      const animX = fromParticle.x + (toParticle.x - fromParticle.x) * this.progress;
+      const animY = fromParticle.y + (toParticle.y - fromParticle.y) * this.progress;
+      
+      ctx.lineTo(animX, animY);
+      ctx.stroke();
     }
   }
 
@@ -261,6 +248,7 @@ window.startNetworkAnimation = function(canvas) {
       this.queue = []; // Queue of nodes to visit next
       this.active = true;
       this.startTime = Date.now();
+      this.completedEdges = new Set(); // Keep track of completed edges for trail effect
       
       // Start from the given node
       this.visited.add(startNodeIndex);
@@ -296,7 +284,9 @@ window.startNetworkAnimation = function(canvas) {
         if (completed) {
           // When an edge animation completes, expand from the destination node
           this.queue.push(edge.to);
-          // Remove the completed edge
+          // Store completed edge for trail effect
+          this.completedEdges.add(`${edge.from}-${edge.to}`);
+          // Remove the completed edge from active animations
           this.edges.splice(i, 1);
         }
       }
@@ -309,21 +299,44 @@ window.startNetworkAnimation = function(canvas) {
       // If no more edges, this path finder is done
       const isComplete = this.edges.length === 0;
       
-      // If completed, ensure we clean up properly by unhighlighting after a delay
-      if (isComplete && Date.now() - this.startTime > 10000) {
+      // If completed, ensure we clean up properly after a shorter delay
+      if (isComplete && Date.now() - this.startTime > 5000) {
         // Animation is completely done, reset all nodes to normal state
         this.visited.forEach(index => {
           if (particles[index] && particles[index].isHighlighted) {
-            particles[index].highlightTime = Math.min(particles[index].highlightTime, 500);
+            particles[index].highlightTime = Math.min(particles[index].highlightTime, 300);
           }
         });
+        return true;
       }
       
-      return isComplete;
+      return false;
     }
     
     draw(ctx) {
+      // Draw active animated edges
       this.edges.forEach(edge => edge.draw(ctx));
+      
+      // Draw completed edges with lower opacity (trail effect)
+      if (this.completedEdges.size > 0 && Date.now() - this.startTime < 3000) {
+        ctx.save();
+        ctx.globalAlpha = config.pathTrailOpacity;
+        ctx.strokeStyle = config.pathColor;
+        ctx.lineWidth = config.pathWidth * 0.8;
+        
+        this.completedEdges.forEach(edgeKey => {
+          const [fromIdx, toIdx] = edgeKey.split('-').map(Number);
+          const fromParticle = particles[fromIdx];
+          const toParticle = particles[toIdx];
+          
+          ctx.beginPath();
+          ctx.moveTo(fromParticle.x, fromParticle.y);
+          ctx.lineTo(toParticle.x, toParticle.y);
+          ctx.stroke();
+        });
+        
+        ctx.restore();
+      }
     }
   }
 
@@ -445,8 +458,8 @@ window.startNetworkAnimation = function(canvas) {
         const isComplete = pathAnimations[i].update(deltaTime);
         pathAnimations[i].draw(ctx);
         
-        // Remove completed animations after a delay to ensure transitions finish
-        if (isComplete && pathAnimations[i].edges.length === 0) {
+        // Remove completed animations
+        if (isComplete) {
           pathAnimations.splice(i, 1);
         }
       }

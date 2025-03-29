@@ -43,17 +43,17 @@
   animation: fadeIn 1.5s ease-in-out;
 }
 
-/* Glowing effect for nodes */
+/* Subtle glow effect for nodes - similar to williamlin.io */
 @keyframes glow {
-  0% { filter: drop-shadow(0 0 5px rgba(100, 180, 255, 0.8)); }
-  50% { filter: drop-shadow(0 0 15px rgba(100, 180, 255, 0.8)); }
-  100% { filter: drop-shadow(0 0 5px rgba(100, 180, 255, 0.8)); }
+  0% { filter: drop-shadow(0 0 3px rgba(100, 180, 255, 0.6)); }
+  50% { filter: drop-shadow(0 0 8px rgba(100, 180, 255, 0.8)); }
+  100% { filter: drop-shadow(0 0 3px rgba(100, 180, 255, 0.6)); }
 }
 
-/* Add pulse animation for particles */
+/* Gentle pulse animation for highlighted particles */
 @keyframes pulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
 
