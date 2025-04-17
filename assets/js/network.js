@@ -2,7 +2,7 @@
 const config = {
   particleCount: 120,
   connectionDistance: 150,
-  particleSpeed: 0.4,
+  particleSpeed: 0.8, // Increased speed for more movement
   particleSize: 3,
   highlightedParticleSize: 6,
   lineColor: 'rgba(255, 255, 255, 0.15)',
@@ -21,7 +21,9 @@ const config = {
   pathColor: 'rgba(100, 180, 255, 0.8)', // Blue path color
   pathWidth: 1.5, // Thinner path width
   pathLineLength: 0.2, // Length of the moving line segment (0.2 = 20% of total distance)
-  pathTrailOpacity: 0.0 // No trail (williamlin.io doesn't use trails)
+  pathTrailOpacity: 0.0, // No trail (williamlin.io doesn't use trails)
+  movementFactor: 1.2, // New parameter for movement direction changes
+  directionChangeChance: 0.01 // Chance to randomly change direction
 };
 
 // Particle class to manage individual nodes
@@ -41,6 +43,7 @@ class Particle {
     this.isNew = isNew;
     this.visited = false; // Track if particle has been visited in pathfinding
     this.active = true; // Particle is active for pathfinding
+    this.directionTimer = Math.random() * 100; // Timer for direction changes
   }
 
   initAtPosition(x, y) {
@@ -59,8 +62,8 @@ class Particle {
   reset() {
     this.x = Math.random() * this.canvas.width;
     this.y = Math.random() * this.canvas.height;
-    this.vx = (Math.random() - 0.5) * config.particleSpeed;
-    this.vy = (Math.random() - 0.5) * config.particleSpeed;
+    this.vx = (Math.random() - 0.5) * config.particleSpeed * 2; // Stronger initial velocity
+    this.vy = (Math.random() - 0.5) * config.particleSpeed * 2; // Stronger initial velocity
     this.size = config.particleSize;
     this.color = config.particleColor;
     this.originalSize = config.particleSize;
@@ -87,28 +90,41 @@ class Particle {
     // Update age
     this.age++;
     
-    // Update position with FIXED speed - never increase speed
+    // Random direction change occasionally for more varied movement
+    this.directionTimer -= deltaTime;
+    if (this.directionTimer <= 0 || Math.random() < config.directionChangeChance) {
+      // Apply a slight change to direction rather than completely resetting
+      this.vx += (Math.random() - 0.5) * config.particleSpeed * config.movementFactor;
+      this.vy += (Math.random() - 0.5) * config.particleSpeed * config.movementFactor;
+      
+      // Ensure speed stays reasonable
+      const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      if (speed > config.particleSpeed * 2.5) {
+        // Normalize and scale back to reasonable speed
+        this.vx = (this.vx / speed) * config.particleSpeed * 2;
+        this.vy = (this.vy / speed) * config.particleSpeed * 2;
+      }
+      
+      // Reset timer with some randomness
+      this.directionTimer = Math.random() * 100 + 50;
+    }
+    
+    // Update position
     this.x += this.vx;
     this.y += this.vy;
 
-    // Bounce off walls without changing speed magnitude
+    // Bounce off walls with slight randomness for more natural movement
     if (this.x < 0 || this.x > this.canvas.width) {
-      this.vx = -this.vx;
+      this.vx = -this.vx * (0.9 + Math.random() * 0.2);
+      // Ensure particle is inside bounds
+      if (this.x < 0) this.x = 1;
+      if (this.x > this.canvas.width) this.x = this.canvas.width - 1;
     }
     if (this.y < 0 || this.y > this.canvas.height) {
-      this.vy = -this.vy;
-    }
-
-    // Maintain constant speed
-    const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-    if (currentSpeed !== 0) {
-      const targetSpeed = (Math.random() - 0.5) * config.particleSpeed * 2;
-      // Only apply minimal corrections to maintain consistent speed
-      const correction = targetSpeed / currentSpeed;
-      if (Math.abs(correction - 1) > 0.1) {
-        this.vx *= correction;
-        this.vy *= correction;
-      }
+      this.vy = -this.vy * (0.9 + Math.random() * 0.2);
+      // Ensure particle is inside bounds
+      if (this.y < 0) this.y = 1;
+      if (this.y > this.canvas.height) this.y = this.canvas.height - 1;
     }
 
     // Reduce highlight time - ensure it actually decreases
@@ -465,12 +481,22 @@ window.startNetworkAnimation = function(canvas) {
       const deltaTime = lastTime ? Math.min(currentTime - lastTime, 100) : 16;
       lastTime = currentTime;
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Clear with proper alpha for smooth trails effect
+      ctx.fillStyle = 'rgba(22, 22, 22, 0.2)'; // Dark color with slight transparency
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Optional: for cleaner look without trails, use this instead:
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Process any clicks in the queue
       while (clickQueue.length > 0) {
         const click = clickQueue.shift();
         addParticle(click.x, click.y);
+      }
+
+      // Apply GPU acceleration if available
+      if (typeof ctx.imageSmoothingEnabled !== 'undefined') {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
       }
 
       // Draw static connections first (normal white connections)
@@ -528,7 +554,7 @@ window.startNetworkAnimation = function(canvas) {
         ctx.shadowBlur = 0;
       });
 
-      // Update connections periodically
+      // Update connections periodically but not every frame (performance optimization)
       if (Math.random() < 0.01) {
         updateConnections();
       }
