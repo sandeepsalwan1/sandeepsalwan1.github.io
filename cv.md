@@ -1,6 +1,6 @@
 ---
 layout: redirect
 title: "CV"
-redirect_to: "/SandeepSalwan_Resume.pdf"
+redirect_to: "/assets/images/SandeepSalwanResume.pdf"
 permalink: /cv/
 --- 

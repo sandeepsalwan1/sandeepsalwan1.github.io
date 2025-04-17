@@ -1,3 +1,9 @@
+- name: AiMessage
+  link: https://aimessage.tech
+  image: /assets/images/aimessage.jpeg
+  subtitle: "Real-time messaging with integrated sentiment analysis"
+  tags: ["Next.js", "React", "Pusher", "Sentiment Analysis", "NLP"]
+
 - name: AnimalCare
   link: https://github.com/sandeepsalwan1/animalcare 
   image: /assets/images/animalcare.jpeg

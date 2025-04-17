@@ -1,6 +1,6 @@
 ---
 layout: redirect
 title: "Resume"
-redirect_to: "/SandeepSalwan_Resume.pdf"
+redirect_to: "/assets/images/SandeepSalwanResume.pdf"
 permalink: /resume/
 --- 
