@@ -2,7 +2,7 @@
 const config = {
   particleCount: 120,
   connectionDistance: 150,
-  particleSpeed: 0.8, // Increased speed for more movement
+  particleSpeed: 1.2, // Increased speed for more linear movement
   particleSize: 3,
   highlightedParticleSize: 6,
   lineColor: 'rgba(255, 255, 255, 0.15)',
@@ -22,8 +22,8 @@ const config = {
   pathWidth: 1.5, // Thinner path width
   pathLineLength: 0.2, // Length of the moving line segment (0.2 = 20% of total distance)
   pathTrailOpacity: 0.0, // No trail (williamlin.io doesn't use trails)
-  movementFactor: 1.2, // New parameter for movement direction changes
-  directionChangeChance: 0.01 // Chance to randomly change direction
+  movementFactor: 0.2, // Reduced for straighter paths
+  directionChangeChance: 0.002 // Much lower chance of random direction change
 };
 
 // Particle class to manage individual nodes
@@ -62,8 +62,12 @@ class Particle {
   reset() {
     this.x = Math.random() * this.canvas.width;
     this.y = Math.random() * this.canvas.height;
-    this.vx = (Math.random() - 0.5) * config.particleSpeed * 2; // Stronger initial velocity
-    this.vy = (Math.random() - 0.5) * config.particleSpeed * 2; // Stronger initial velocity
+    
+    // Create initial straight-line velocities with consistent speed
+    const angle = Math.random() * Math.PI * 2;
+    this.vx = Math.cos(angle) * config.particleSpeed;
+    this.vy = Math.sin(angle) * config.particleSpeed;
+    
     this.size = config.particleSize;
     this.color = config.particleColor;
     this.originalSize = config.particleSize;
@@ -90,38 +94,37 @@ class Particle {
     // Update age
     this.age++;
     
-    // Random direction change occasionally for more varied movement
+    // Greatly reduced random direction changes for straighter paths
     this.directionTimer -= deltaTime;
     if (this.directionTimer <= 0 || Math.random() < config.directionChangeChance) {
-      // Apply a slight change to direction rather than completely resetting
+      // Apply a very slight change to direction
       this.vx += (Math.random() - 0.5) * config.particleSpeed * config.movementFactor;
       this.vy += (Math.random() - 0.5) * config.particleSpeed * config.movementFactor;
       
-      // Ensure speed stays reasonable
+      // Normalize velocity to maintain constant speed for straight paths
       const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-      if (speed > config.particleSpeed * 2.5) {
-        // Normalize and scale back to reasonable speed
-        this.vx = (this.vx / speed) * config.particleSpeed * 2;
-        this.vy = (this.vy / speed) * config.particleSpeed * 2;
+      if (speed !== 0) {
+        this.vx = (this.vx / speed) * config.particleSpeed;
+        this.vy = (this.vy / speed) * config.particleSpeed;
       }
       
-      // Reset timer with some randomness
-      this.directionTimer = Math.random() * 100 + 50;
+      // Set a longer timer for more sustained straight movement
+      this.directionTimer = Math.random() * 300 + 200;
     }
     
     // Update position
     this.x += this.vx;
     this.y += this.vy;
 
-    // Bounce off walls with slight randomness for more natural movement
+    // Clean bounce off walls with minimal randomness
     if (this.x < 0 || this.x > this.canvas.width) {
-      this.vx = -this.vx * (0.9 + Math.random() * 0.2);
+      this.vx = -this.vx;
       // Ensure particle is inside bounds
       if (this.x < 0) this.x = 1;
       if (this.x > this.canvas.width) this.x = this.canvas.width - 1;
     }
     if (this.y < 0 || this.y > this.canvas.height) {
-      this.vy = -this.vy * (0.9 + Math.random() * 0.2);
+      this.vy = -this.vy;
       // Ensure particle is inside bounds
       if (this.y < 0) this.y = 1;
       if (this.y > this.canvas.height) this.y = this.canvas.height - 1;
@@ -206,6 +209,29 @@ window.startNetworkAnimation = function(canvas) {
   for (let i = 0; i < config.particleCount; i++) {
     particles.push(new Particle(canvas));
   }
+
+  // Initialize particles with a better distribution of straight-line motion
+  function initializeMovementPatterns() {
+    // Create particles moving in various directions covering 360 degrees
+    const angleStep = (Math.PI * 2) / particles.length;
+    
+    particles.forEach((particle, index) => {
+      // Assign a specific angle to each particle for better distribution
+      const angle = angleStep * index;
+      particle.vx = Math.cos(angle) * config.particleSpeed;
+      particle.vy = Math.sin(angle) * config.particleSpeed;
+      
+      // Ensure constant speed
+      const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+      if (speed !== 0) {
+        particle.vx = (particle.vx / speed) * config.particleSpeed;
+        particle.vy = (particle.vy / speed) * config.particleSpeed;
+      }
+    });
+  }
+  
+  // Call the initialization
+  initializeMovementPatterns();
 
   // Function to update connections between particles
   function updateConnections() {
@@ -481,11 +507,8 @@ window.startNetworkAnimation = function(canvas) {
       const deltaTime = lastTime ? Math.min(currentTime - lastTime, 100) : 16;
       lastTime = currentTime;
       
-      // Clear with proper alpha for smooth trails effect
-      ctx.fillStyle = 'rgba(22, 22, 22, 0.2)'; // Dark color with slight transparency
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // Optional: for cleaner look without trails, use this instead:
-      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Clear canvas completely for crisp lines (no trails for straighter movement)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Process any clicks in the queue
       while (clickQueue.length > 0) {
@@ -499,7 +522,12 @@ window.startNetworkAnimation = function(canvas) {
         ctx.imageSmoothingQuality = 'high';
       }
 
-      // Draw static connections first (normal white connections)
+      // First update all particles' positions
+      particles.forEach(particle => {
+        particle.update(mouseX, mouseY, clicking, deltaTime);
+      });
+
+      // Then draw all connections to avoid flicker
       particles.forEach(particle => {
         particles.forEach(otherParticle => {
           if (particle === otherParticle) return;
@@ -534,10 +562,8 @@ window.startNetworkAnimation = function(canvas) {
         }
       }
 
-      // Update and draw particles on top of connections
+      // Finally draw all particles on top
       particles.forEach(particle => {
-        particle.update(mouseX, mouseY, clicking, deltaTime);
-
         const currentSize = particle.getCurrentSize();
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, currentSize, 0, Math.PI * 2);

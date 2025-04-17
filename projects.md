@@ -45,10 +45,12 @@ title: "Projects"
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     grid-gap: 20px;
     margin-top: 2rem;
+    position: relative;
+    z-index: 1;
   }
   /* Dark mode is now the default */
   .card {
-    background-color: #2c2c2c;
+    background-color: rgba(44, 44, 44, 0.85); /* More transparent for the network background */
     color: #fff;
     border-radius: 6px;
     overflow: hidden;
@@ -57,6 +59,7 @@ title: "Projects"
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
+    backdrop-filter: blur(3px); /* Apply blur effect for better readability */
   }
   .card:hover {
     transform: translateY(-5px) scale(1.02);

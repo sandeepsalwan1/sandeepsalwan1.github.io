@@ -35,7 +35,7 @@
   {% include menu.html menu=pages %}
 </header>
 
-{% if page.url == "/" %}
+{% if page.url == "/" or page.url == "/projects" or page.url == "/projects/" %}
 <div class="network-background">
   <canvas id="network-canvas"></canvas>
 </div>
@@ -64,7 +64,7 @@
   }, 2250);
 </script>
 
-{% if page.url == "/" %}
+{% if page.url == "/" or page.url == "/projects" or page.url == "/projects/" %}
 <script src="{{ "/assets/js/framework.0c239260661ae1d12aa2.js" | relative_url }}"></script>
 <script src="{{ "/assets/js/b5f2ed29.c397f7e1879d1927fe87.js" | relative_url }}"></script>
 <script src="{{ "/assets/js/network.js" | relative_url }}"></script>
