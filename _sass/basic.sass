@@ -1,6 +1,6 @@
 body
-  background: $light
-  color: $dark
+  background: $dark
+  color: $light
   font-family: $font-family
   font-weight: $font-weight
   font-size: $font-size
@@ -10,12 +10,12 @@ body
   -webkit-text-size-adjust: 100%
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
-  -moz-osx-font-smoothing: grayscale
 
-@media (prefers-color-scheme: dark)
-  body
-    background: $dark
-    color: $light
+article
+  background: lighten($dark, 5%)
+  margin: 0
+  padding: 1.5em 0
+  box-shadow: none
 
 h1, h2, h3, h4, h5, h6
   font-weight: $heading-weight
@@ -168,7 +168,7 @@ body
   from, to
     border-color: transparent
   50%
-    border-color: $dark
+    border-color: $light
 
 @keyframes hide-caret
   to
@@ -220,7 +220,7 @@ footer .footer-description
 .typing-animation
   display: inline-block
   overflow: hidden
-  border-right: .15em solid $dark
+  border-right: .15em solid $light
   white-space: nowrap
   margin: 0 auto
   letter-spacing: .15em
@@ -239,10 +239,6 @@ header .description.typing-animation
   animation-delay: 4s, 4s, 8.3s
   font-size: 0.8em
 
-@media (prefers-color-scheme: dark)
-  .typing-animation
-    border-right-color: $light
-
 footer .footer-description
   display: inline-block
   margin-right: 1em
@@ -255,11 +251,11 @@ footer .typing-animation-footer
 
 @keyframes hide-caret
   to
-    border-right-color: transparent
+    border-color: transparent
 
 @keyframes hide-caret-footer
   to
-    border-right-color: transparent
+    border-color: transparent
 
 .hide-caret
   border-right-color: transparent !important

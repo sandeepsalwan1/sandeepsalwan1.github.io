@@ -46,26 +46,21 @@ title: "Projects"
     grid-gap: 20px;
     margin-top: 2rem;
   }
-  @media (prefers-color-scheme: dark) {
-    .card {
-      background-color: #2c2c2c; /* #333, etc. */
-      color: #fff;
-    }
-  }
+  /* Dark mode is now the default */
   .card {
-    background-color: #fff;
+    background-color: #2c2c2c;
+    color: #fff;
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     text-decoration: none;
-    color: #212121;
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
   }
   .card:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.4);
   }
   .card img {
     width: 100%;
@@ -85,7 +80,7 @@ title: "Projects"
   .card-subtitle {
     margin: 0 0 0.8rem;
     font-size: 0.9rem;
-    color: #777;
+    color: #aaa;
   }
   .card ul {
     list-style: none;
@@ -105,12 +100,12 @@ title: "Projects"
   }
   .tag-pill {
     display: inline-block;
-    background: #f2f2f2;
+    background: #333;
     border-radius: 20px;
     padding: 0.2rem 0.6rem;
     font-size: 0.75rem;
     margin-right: 0.4rem;
-    color: #555;
+    color: #ccc;
   }
 </style>
 
