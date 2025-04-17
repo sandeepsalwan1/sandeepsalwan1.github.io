@@ -417,7 +417,7 @@ window.startNetworkAnimation = function(canvas) {
 
   // Function to add a new particle at a specific position
   function addParticle(x, y) {
-    if (particles.length < config.maxParticles && Math.random() < config.newParticleChance) {
+    if (particles.length < config.maxParticles) {
       const newParticle = new Particle(canvas, x, y, true);
       const newIndex = particles.length;
       particles.push(newParticle);
