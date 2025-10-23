@@ -1,6 +1,6 @@
 title: "Sandeep Salwan"
 author: "Sandeep"
-description: "SS"
+description: "AI Engineer and GenAI Technical Intern at Scale AI. Northeastern CS student specializing in AI, ML, and full‑stack development."
 permalink: /:title/
 lang: "en"
 excerpt_separator: "\n\n\n"
@@ -26,6 +26,10 @@ comments:
 
 plugins:
  - jekyll-feed
+
+# SEO
+url: "https://sandeeps.tech"
+twitter_username: "_SandeepSalwan"
 
 source: .
 destination: ./_site
