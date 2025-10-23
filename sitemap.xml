@@ -1,0 +1,33 @@
+---
+layout: null
+sitemap: false
+permalink: /sitemap.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% assign all_pages = site.pages | where_exp: 'p', 'p.sitemap != false' %}
+  {% for page in all_pages %}
+  <url>
+    <loc>{{ page.url | absolute_url }}</loc>
+    {% if page.last_modified_at %}
+    <lastmod>{{ page.last_modified_at | date_to_xmlschema }}</lastmod>
+    {% elsif page.date %}
+    <lastmod>{{ page.date | date_to_xmlschema }}</lastmod>
+    {% endif %}
+    <changefreq>{% if page.url == '/' %}weekly{% else %}monthly{% endif %}</changefreq>
+    <priority>{% if page.url == '/' %}1.0{% else %}0.6{% endif %}</priority>
+  </url>
+  {% endfor %}
+  {% for post in site.posts %}
+  <url>
+    <loc>{{ post.url | absolute_url }}</loc>
+    {% if post.last_modified_at %}
+    <lastmod>{{ post.last_modified_at | date_to_xmlschema }}</lastmod>
+    {% elsif post.date %}
+    <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
+    {% endif %}
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  {% endfor %}
+</urlset>
