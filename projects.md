@@ -1,6 +1,7 @@
 ---
 layout: page
 title: "Projects"
+description: "Explore Sandeep Salwan's AI and software engineering projects including machine learning applications, full-stack development, and innovative AI solutions built with Python, C++, Java, and modern frameworks."
 ---
 
 <!-- Optional inline CSS for a grid of cards -->
