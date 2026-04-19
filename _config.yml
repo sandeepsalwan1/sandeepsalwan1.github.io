@@ -15,7 +15,6 @@ minimal: false
 # Menu
 navigation:
   - {file: "index.html", title: "Home"}
-  - {file: "about.md", title: "About"}
   - {file: "projects.md", title: "Projects"}
   - {file: "blog.md", title: "Blog"}
 

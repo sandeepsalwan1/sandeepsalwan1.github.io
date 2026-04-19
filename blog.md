@@ -2,18 +2,20 @@
 layout: page
 title: "Blog"
 description: "Writing from Sandeep Salwan on AI engineering, systems, and product building."
-page_class: "blog-page"
-show_page_header: false
 ---
 
-<section class="blog-index">
-  <div class="section-heading">
-    <div>
-      <span class="section-heading__eyebrow">Writing</span>
-      <h1>Blog</h1>
-    </div>
-    <a class="section-heading__link" href="{{ '/rss.xml' | relative_url }}">rss.xml</a>
-  </div>
-
-  {% include blog-list.html %}
-</section>
+<div class="blog-list-minimal">
+  {% if site.posts and site.posts.size > 0 %}
+    <ul class="blog-post-list">
+      {% for post in site.posts %}
+        <li>
+          <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+          <p class="blog-post-list__meta">{{ post.date | date: site.date_format }}</p>
+          <p>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 180 }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No posts yet.</p>
+  {% endif %}
+</div>
