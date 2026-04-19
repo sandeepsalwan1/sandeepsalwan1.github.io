@@ -41,7 +41,6 @@ jobs:
 
   devto:
     needs: normalize-frontmatter
-    if: ${{ secrets.DEVTO_TOKEN != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +57,6 @@ jobs:
 
   hashnode:
     needs: normalize-frontmatter
-    if: ${{ secrets.HASHNODE_TOKEN != '' && secrets.HASHNODE_PUBLICATION_ID != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
