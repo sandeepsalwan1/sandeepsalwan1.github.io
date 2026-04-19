@@ -1,0 +1,23 @@
+site:
+  canonical_base: "https://sandeeps.tech"
+
+paths:
+  posts_dir: "_posts"
+
+platforms:
+  devto:
+    enabled: true
+    api_token_secret: "DEVTO_TOKEN"
+
+  medium:
+    enabled: false
+    api_token_secret: "MEDIUM_TOKEN"
+
+  hashnode:
+    enabled: true
+    api_token_secret: "HASHNODE_TOKEN"
+    default_publication_id_secret: "HASHNODE_PUBLICATION_ID"
+
+  social:
+    enabled: true
+    state_file: ".automation/social-post-state.json"

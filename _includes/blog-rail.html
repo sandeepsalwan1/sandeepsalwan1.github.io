@@ -1,0 +1,33 @@
+{% assign post_limit = include.limit | default: 3 %}
+<section class="blog-rail">
+  <div class="section-heading">
+    <div>
+      <span class="section-heading__eyebrow">{{ include.eyebrow | default: "Blog" }}</span>
+      <h2>{{ include.title | default: "Latest Writing" }}</h2>
+    </div>
+    <a class="section-heading__link" href="{{ '/blog/' | relative_url }}">view all</a>
+  </div>
+
+  {% if site.posts and site.posts.size > 0 %}
+    <div class="blog-rail__list">
+      {% for post in site.posts limit: post_limit %}
+        <article class="blog-card">
+          <div class="blog-card__meta">
+            <span>{{ post.date | date: site.date_format }}</span>
+            {% if post.tags and post.tags.size > 0 %}
+              <span>{{ post.tags | first }}</span>
+            {% endif %}
+          </div>
+          <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+          <p>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
+          <a class="blog-card__link" href="{{ post.url | relative_url }}">read post</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="blog-empty-state">
+      <p>Fresh writing lands here. RSS, canonical links, and cross-post automation are now wired for the next post.</p>
+      <a class="button button--ghost" href="{{ '/rss.xml' | relative_url }}">follow RSS</a>
+    </div>
+  {% endif %}
+</section>

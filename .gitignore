@@ -5,3 +5,5 @@
 Gemfile.lock
 _site
 *.gem
+node_modules
+.automation/social-post-state.json

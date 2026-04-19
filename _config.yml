@@ -15,7 +15,9 @@ minimal: false
 # Menu
 navigation:
   - {file: "index.html", title: "Home"}
+  - {file: "about.md", title: "About"}
   - {file: "projects.md", title: "Projects"}
+  - {file: "blog.md", title: "Blog"}
 
 external:
   - {title: Mail, icon: envelope, url: "mailto:salwan.s@northeastern.edu"}
@@ -33,6 +35,15 @@ twitter_username: "_SandeepSalwan"
 
 source: .
 destination: ./_site
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      permalink: "/blog/:slug/"
+      image: "/assets/images/s.jpg"
 
 sass:
   sass_dir: _sass

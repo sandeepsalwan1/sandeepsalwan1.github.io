@@ -1,0 +1,22 @@
+{
+  "name": "sandeeps-tech-automation",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.18"
+  },
+  "scripts": {
+    "check:setup": "node scripts/check_github_secrets.mjs",
+    "post:import": "node scripts/import_post.mjs",
+    "post:new": "node scripts/create_post.mjs",
+    "normalize:frontmatter": "node scripts/normalize_frontmatter.mjs",
+    "publish:devto": "node scripts/publish_devto.mjs",
+    "publish:hashnode": "node scripts/publish_hashnode.mjs",
+    "post:social": "node scripts/post_to_social.mjs",
+    "verify:automation": "node scripts/verify_automation.mjs"
+  },
+  "dependencies": {
+    "@humanwhocodes/crosspost": "^1.0.4",
+    "yaml": "^2.8.3"
+  }
+}

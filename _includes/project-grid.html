@@ -1,0 +1,29 @@
+{% assign projects = include.projects | default: site.data.projects %}
+{% assign project_limit = include.limit %}
+<div class="project-grid {% if include.compact %}project-grid--compact{% endif %}">
+  {% for project in projects limit: project_limit %}
+    {% assign is_external = false %}
+    {% if project.link contains "://" %}
+      {% assign is_external = true %}
+    {% endif %}
+    <a class="project-card" href="{% if is_external %}{{ project.link }}{% else %}{{ project.link | relative_url }}{% endif %}" {% if is_external %}target="_blank" rel="noreferrer"{% endif %}>
+      <div class="project-card__image-wrap">
+        <img src="{{ project.image | relative_url }}" alt="{{ project.name }} cover" class="project-card__image">
+      </div>
+      <div class="project-card__content">
+        <div class="project-card__eyebrow">Project</div>
+        <h2 class="project-card__title">{{ project.name }}</h2>
+        {% if project.subtitle %}
+          <p class="project-card__subtitle">{{ project.subtitle }}</p>
+        {% endif %}
+        {% if project.tags %}
+          <div class="tag-list">
+            {% for t in project.tags limit: 5 %}
+              <span class="tag-pill">{{ t }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</div>

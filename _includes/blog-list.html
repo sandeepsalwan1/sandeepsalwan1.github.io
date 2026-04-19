@@ -1,0 +1,21 @@
+<section class="blog-list">
+  {% if site.posts and site.posts.size > 0 %}
+    {% for post in site.posts %}
+      <article class="blog-listing">
+        <div class="blog-listing__meta">
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: site.date_format }}</time>
+          {% if post.tags and post.tags.size > 0 %}
+            <span>{{ post.tags | join: " · " }}</span>
+          {% endif %}
+        </div>
+        <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+        <p>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 190 }}</p>
+        <a class="blog-card__link" href="{{ post.url | relative_url }}">read post</a>
+      </article>
+    {% endfor %}
+  {% else %}
+    <div class="blog-empty-state">
+      <p>No posts live yet. The pipeline is ready; the first markdown publish will land here automatically.</p>
+    </div>
+  {% endif %}
+</section>

@@ -1,0 +1,116 @@
+name: Blog Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "_posts/**"
+      - "scripts/**"
+      - "config.yml"
+      - "config.example.yml"
+      - ".github/workflows/blog-publish.yml"
+  workflow_dispatch:
+    inputs:
+      post_path:
+        description: "Optional explicit post path, e.g. _posts/2026-04-15-my-post.md"
+        required: false
+        type: string
+      dry_run:
+        description: "Verify without publishing"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  POST_PATH: ${{ github.event.inputs.post_path }}
+  DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+
+jobs:
+  normalize-frontmatter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Normalize frontmatter
+        run: node scripts/normalize_frontmatter.mjs
+
+  devto:
+    needs: normalize-frontmatter
+    if: ${{ secrets.DEVTO_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/normalize_frontmatter.mjs
+      - name: Publish to dev.to
+        env:
+          DEVTO_TOKEN: ${{ secrets.DEVTO_TOKEN }}
+        run: node scripts/publish_devto.mjs
+
+  hashnode:
+    needs: normalize-frontmatter
+    if: ${{ secrets.HASHNODE_TOKEN != '' && secrets.HASHNODE_PUBLICATION_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/normalize_frontmatter.mjs
+      - name: Publish to Hashnode
+        env:
+          HASHNODE_TOKEN: ${{ secrets.HASHNODE_TOKEN }}
+          HASHNODE_PUBLICATION_ID: ${{ secrets.HASHNODE_PUBLICATION_ID }}
+        run: node scripts/publish_hashnode.mjs
+
+  social-crosspost:
+    needs: normalize-frontmatter
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache/restore@v4
+        with:
+          path: .automation/social-post-state.json
+          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            social-post-state-${{ github.ref_name }}-
+      - name: Cross-post to social networks
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          MASTODON_HOST: ${{ secrets.MASTODON_HOST }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          BLUESKY_HOST: ${{ secrets.BLUESKY_HOST }}
+          BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/post_to_social.mjs
+      - uses: actions/cache/save@v4
+        if: ${{ always() && hashFiles('.automation/social-post-state.json') != '' }}
+        with:
+          path: .automation/social-post-state.json
+          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}
