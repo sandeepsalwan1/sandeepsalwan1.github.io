@@ -92,7 +92,7 @@ for (const post of posts) {
     (article) =>
       article.canonical_url === post.canonicalUrl ||
       article.slug === post.slug ||
-      article.title === post.title,
+      article.slug?.startsWith(`${post.slug}-`),
   );
 
   if (dryRun) {

@@ -28,6 +28,14 @@ export function slugify(input) {
     .replace(/^-+|-+$/g, "");
 }
 
+export function getLocalDateStamp(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
 export function buildCanonicalUrl(base, slug) {
   const canonicalBase = String(base ?? "").replace(/\/+$/, "");
   return `${canonicalBase}/blog/${slug}/`;
@@ -48,6 +56,37 @@ export function normalizeTags(tags) {
     .filter(Boolean);
 }
 
+function normalizeSocialLinks(links) {
+  if (!Array.isArray(links)) {
+    return [];
+  }
+
+  return links
+    .map((link) => {
+      if (typeof link === "string") {
+        const url = link.trim();
+        return url ? { label: "Link", url } : null;
+      }
+
+      if (!link || typeof link !== "object") {
+        return null;
+      }
+
+      const label = String(link.label ?? "").trim();
+      const url = String(link.url ?? "").trim();
+
+      if (!url) {
+        return null;
+      }
+
+      return {
+        label: label || "Link",
+        url,
+      };
+    })
+    .filter(Boolean);
+}
+
 export function normalizePostData(data, canonicalBase) {
   const normalized = { ...data };
   const slug = normalized.slug ? slugify(normalized.slug) : slugify(normalized.title);
@@ -60,6 +99,10 @@ export function normalizePostData(data, canonicalBase) {
 
   if (normalized.cover_url === undefined) {
     normalized.cover_url = "";
+  }
+
+  if (normalized.social_links !== undefined) {
+    normalized.social_links = normalizeSocialLinks(normalized.social_links);
   }
 
   if (normalized.publish_devto === undefined) {
@@ -141,6 +184,7 @@ export async function readPostFile(filePath, cwd = process.cwd()) {
     canonicalUrl: normalizedData.canonical_url,
     tags: normalizedData.tags,
     coverUrl: normalizedData.cover_url,
+    socialLinks: normalizedData.social_links ?? [],
     publishedAt:
       normalizedData.date ||
       `${path.basename(filePath).slice(0, 10)}T09:00:00.000Z`,

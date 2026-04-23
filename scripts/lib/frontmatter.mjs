@@ -8,6 +8,7 @@ const FRONTMATTER_KEYS = [
   "canonical_url",
   "tags",
   "cover_url",
+  "social_links",
   "layout",
   "publish_devto",
   "publish_medium",

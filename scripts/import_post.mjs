@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { getPostsDir, slugify } from "./lib/posts.mjs";
+import { getLocalDateStamp, getPostsDir, slugify } from "./lib/posts.mjs";
 import { loadAutomationConfig, loadSiteConfig } from "./lib/config.mjs";
 import { serializeFrontmatter } from "./lib/frontmatter.mjs";
 
@@ -53,7 +53,7 @@ const tags = getArg("--tags")
   .filter(Boolean);
 
 const slug = slugify(title);
-const today = new Date().toISOString().slice(0, 10);
+const today = getLocalDateStamp();
 const postsDir = await getPostsDir();
 const filePath = path.join(postsDir, `${today}-${slug}.md`);
 
