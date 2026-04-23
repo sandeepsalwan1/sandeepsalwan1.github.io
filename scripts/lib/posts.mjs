@@ -262,9 +262,32 @@ async function filesFromGitEvent(postsDir, { addedOnly }) {
 async function filesFromGitDiff(postsDir, { addedOnly, cwd }) {
   try {
     const diffFilter = addedOnly ? "A" : "AM";
+    let baseRef = "HEAD~1";
+    let headRef = "HEAD";
+
+    const eventPath = process.env.GITHUB_EVENT_PATH;
+    if (eventPath) {
+      try {
+        const raw = await fs.readFile(eventPath, "utf8");
+        const payload = JSON.parse(raw);
+        if (
+          typeof payload.before === "string" &&
+          payload.before &&
+          payload.before !== "0000000000000000000000000000000000000000" &&
+          typeof payload.after === "string" &&
+          payload.after
+        ) {
+          baseRef = payload.before;
+          headRef = payload.after;
+        }
+      } catch {
+        // ignore payload parsing errors and fall back to local refs
+      }
+    }
+
     const { stdout } = await execFileAsync(
       "git",
-      ["diff", "--name-only", `--diff-filter=${diffFilter}`, "HEAD~1", "HEAD", "--", postsDir],
+      ["diff", "--name-only", `--diff-filter=${diffFilter}`, baseRef, headRef, "--", postsDir],
       { cwd },
     );
     return filterPostPaths(stdout.split("\n"), postsDir);
