@@ -25,7 +25,7 @@ hashnode_publication_id: USE_DEFAULT
 
 You ask your AI assistant a simple history question about the 184th president of the United States. The model does not hesitate. It does not pause to consider that there have only been 47 presidents. Instead, it confidently generates a credible name and a fake inauguration ceremony.
 
-That behavior is called hallucination. It is still the biggest obstacle preventing AI systems from being truly reliable in high-stakes fields like healthcare, law, finance, and enterprise operations. To understand how to reduce hallucinations, we first need to understand why they happen at all.
+That behavior is called **hallucination**. It is still the biggest obstacle preventing AI systems from being truly reliable in high-stakes fields like healthcare, law, finance, and enterprise operations. To understand how to reduce hallucinations, we first need to understand why they happen at all.
 
 ## The Scale of the Problem
 
@@ -37,7 +37,7 @@ That creates a huge hidden business cost. A 2024 survey found that 47% of enterp
 
 ## Why the Machine Lies
 
-To fix the problem, you have to understand the mechanism behind it. Large language models do not store truth the way people imagine. They are not internal databases of facts. They are prediction engines.
+To fix the problem, you have to understand the mechanism behind it. Large language models do not store truth the way people imagine. They are not internal databases of facts. They are **prediction engines**.
 
 When you ask a question, the model examines your words and estimates the most likely next word. Then it repeats that process over and over again. In a sense, it is a highly advanced version of your phone's autocomplete.
 
@@ -45,21 +45,19 @@ If you ask about the 184th president, the model does not stop to check a history
 
 This gets worse with what researchers call long-tail knowledge deficits. If a fact appears rarely in the training data, the model struggles to recall it correctly. Researchers found that when a fact appears only once in training data, the model is statistically guaranteed to hallucinate it at least 20% of the time. Because the model is trained to be helpful, it often guesses instead of refusing to answer.
 
-_Illustration source: [SSW](https://www.ssw.com.au/)_
-
 ## The Old Theory Was Wrong
 
 For a long time, the default solution was simple: build bigger models.
 
 The assumption was that a larger model would make fewer mistakes. That turns out to be incomplete at best. Recent benchmarks show that larger and more reasoning-heavy models can still hallucinate at meaningful rates. OpenAI's `o3` model showed a hallucination rate of 33% on specific tests. The smaller `o4-mini` reached 48%.
 
-Raw intelligence does not automatically produce honesty. That is why engineers are moving away from brute force scaling and toward system design choices that force models to stay grounded.
+**Raw intelligence does not automatically produce honesty.** That is why engineers are moving away from brute force scaling and toward system design choices that force models to stay grounded.
 
 ## Solution 1: The Open Book Test With RAG
 
 One of the most practical solutions today is Retrieval-Augmented Generation, or RAG.
 
-RAG gives the model an open-book test instead of a closed-book one. Instead of guessing from memory, the system pauses, searches a trusted set of documents, retrieves the most relevant evidence, and generates a response based on that material.
+RAG gives the model an **open-book test** instead of a closed-book one. Instead of guessing from memory, the system pauses, searches a trusted set of documents, retrieves the most relevant evidence, and generates a response based on that material.
 
 That makes a huge difference because the model is no longer relying only on fuzzy patterns from training. It is being asked to answer from evidence it just read.
 
@@ -70,7 +68,7 @@ RAG is not magic, though. If the retrieved documents are outdated, incomplete, o
 
 Another promising direction is to use multiple models or multiple agent roles together.
 
-In a multi-agent verification system, one model acts as the writer and another acts as the critic. The writer produces a draft. The critic looks for factual gaps, logical errors, or unsupported claims. If the critic finds a problem, it rejects the draft and forces another pass.
+In a multi-agent verification system, one model acts as the **writer** and another acts as the **critic**. The writer produces a draft. The critic looks for factual gaps, logical errors, or unsupported claims. If the critic finds a problem, it rejects the draft and forces another pass.
 
 This kind of adversarial review starts to resemble peer review in human systems. Instead of trusting one model's first answer, you build a process that expects failure and actively tries to catch it before the output reaches the user.
 
@@ -80,7 +78,7 @@ Recent research from Yang and colleagues suggests this approach can improve accu
 
 The most interesting shift is not just architectural. It is behavioral.
 
-Most mainstream models have been trained with reinforcement learning from human feedback, or RLHF. In practice, that often rewards answers that sound polished, useful, and confident. The side effect is obvious: confidence is rewarded more consistently than calibrated honesty.
+Most mainstream models have been trained with reinforcement learning from human feedback, or RLHF. In practice, that often rewards answers that sound polished, useful, and confident. The side effect is obvious: **confidence is rewarded** more consistently than calibrated honesty.
 
 The fix is to change the reward system. Engineers can heavily penalize incorrect confident answers while giving small rewards when the model honestly admits uncertainty or refuses unsupported claims. That pushes the system toward better calibration, where its internal confidence lines up more closely with actual accuracy.
 
@@ -90,7 +88,7 @@ This requires real human infrastructure. Companies like Scale AI employ very lar
 
 For now, the practical answer is not blind trust. It is workflow design.
 
-Treat AI output like a first draft, not a final answer. Verify important claims. Follow citations back to the source. Prefer tools and systems that expose evidence directly. If you are using AI in professional work, assume you need guardrails, review layers, and verification before the output is safe.
+Treat AI output like a **first draft, not a final answer**. Verify important claims. Follow citations back to the source. Prefer tools and systems that expose evidence directly. If you are using AI in professional work, assume you need **guardrails, review layers, and verification** before the output is safe.
 
 The goal is not to eliminate hallucinations entirely. With current architectures, that is not realistic. The goal is to build systems that catch the lies before they reach you.
 
