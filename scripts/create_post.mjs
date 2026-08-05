@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { getLocalDateStamp, getPostsDir, slugify } from "./lib/posts.mjs";
+import { getDraftsDir, slugify } from "./lib/posts.mjs";
 import { loadAutomationConfig, loadSiteConfig } from "./lib/config.mjs";
 import { serializeFrontmatter } from "./lib/frontmatter.mjs";
 
@@ -15,7 +15,7 @@ function getArg(flag) {
 
 const title = getArg("--title").trim();
 if (!title) {
-  console.error('Usage: npm run post:new -- --title "My Post Title" [--description "Short summary"] [--tags "ai,llm"]');
+  console.error('Usage: npm run draft:new -- --title "My Post Title" [--description "Short summary"] [--tags "ai,llm"]');
   process.exit(1);
 }
 
@@ -26,9 +26,8 @@ const tags = getArg("--tags")
   .filter(Boolean);
 
 const slug = slugify(title);
-const today = getLocalDateStamp();
-const postsDir = await getPostsDir();
-const filePath = path.join(postsDir, `${today}-${slug}.md`);
+const draftsDir = await getDraftsDir();
+const filePath = path.join(draftsDir, `${slug}.md`);
 
 try {
   await fs.access(filePath);
@@ -62,5 +61,7 @@ const content = serializeFrontmatter(
   "Write here.\n",
 );
 
+await fs.mkdir(draftsDir, { recursive: true });
 await fs.writeFile(filePath, content);
-console.log(filePath);
+console.log(path.relative(process.cwd(), filePath));
+console.log(`Publish when ready: npm run draft:publish -- ${slug}`);

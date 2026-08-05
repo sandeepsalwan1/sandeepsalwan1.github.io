@@ -87,6 +87,9 @@ if (!enabled) {
 }
 
 if (!token) {
+  if (process.env.REQUIRE_PUBLISH_TARGETS === "1") {
+    throw new Error("HASHNODE_TOKEN is required for this publish run.");
+  }
   console.log("HASHNODE_TOKEN not set. Skipping Hashnode publish.");
   process.exit(0);
 }

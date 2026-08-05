@@ -2,11 +2,11 @@
 
 Blog publishing is wired around `config.yml`.
 
-If you want the ultra-simple version, read [EASY_POSTING_GUIDE.md](/Users/sandeep/projects/sandeepsalwan1.github.io-6/EASY_POSTING_GUIDE.md).
+If you want the ultra-simple version, read [EASY_POSTING_GUIDE.md](EASY_POSTING_GUIDE.md).
 
 ## Setup
 
-1. Keep writing posts in `_posts/` using Markdown frontmatter.
+1. Keep writing drafts in `_drafts/` using Markdown frontmatter.
 2. Review `config.yml` or copy `config.example.yml` if you want a fresh baseline.
 3. Add GitHub Actions secrets:
    - `DEVTO_TOKEN`
@@ -31,8 +31,9 @@ If you want the ultra-simple version, read [EASY_POSTING_GUIDE.md](/Users/sandee
 
 ## Commands
 
-- `npm run post:import -- --source "/full/path/to/draft.txt" --tags "ai,llm"`
-- `npm run post:new -- --title "My New Post" --description "Short summary" --tags "ai,llm"`
+- `npm run draft:import -- --source "/full/path/to/draft.txt" --tags "ai,llm"`
+- `npm run draft:new -- --title "My New Post" --description "Short summary" --tags "ai,llm"`
+- `npm run draft:publish -- my-new-post`
 - `npm run normalize:frontmatter`
 - `npm run publish:devto`
 - `npm run publish:hashnode`
@@ -53,12 +54,16 @@ If you want the ultra-simple version, read [EASY_POSTING_GUIDE.md](/Users/sandee
 
 ## GitHub Actions
 
-- Push a new markdown file under `_posts/` to `main` and CI will auto-publish it.
+- Pushing a file under `_drafts/` stores the draft in public Git history without publishing the site or any syndication target.
+- `npm run draft:publish -- <draft-name>` promotes a checked draft into a dated `_posts/` file and removes its editorial workpad.
+- Push the promoted `_posts/` file to `main` and CI waits for the canonical page before publishing to dev.to, Hashnode, and configured social targets.
 - For a manual run, open the `Blog Publish` workflow, set `post_path`, and optionally enable `dry_run`.
 
 ## Notes
 
 - `canonical_url` is filled automatically from `https://sandeeps.tech/blog/{slug}/` when missing.
 - Medium stays disabled by default until a working token is available.
-- Social fan-out caches `.automation/social-post-state.json` in CI so reruns do not repost the same canonical URL.
+- Social fan-out records success per target, so a retry only repeats failed targets.
+- X, Mastodon, and Bluesky are required in this repository; missing credentials fail the run instead of silently skipping them.
+- LinkedIn, Discord, and Telegram activate automatically when their documented secrets are added.
 - Publish scripts do not fall back to the latest post on CI anymore; they only act on changed posts or an explicit `POST_PATH`.
