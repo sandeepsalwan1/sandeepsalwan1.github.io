@@ -29,6 +29,8 @@ If you want the ultra-simple version, read [EASY_POSTING_GUIDE.md](EASY_POSTING_
      - `TELEGRAM_BOT_TOKEN`
      - `TELEGRAM_CHAT_ID`
 
+Hashnode API publishing requires an active Pro plan on the target publication.
+
 ## Commands
 
 - `npm run draft:import -- --source "/full/path/to/draft.txt" --tags "ai,llm"`

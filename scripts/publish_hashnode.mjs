@@ -1,7 +1,7 @@
 import { loadAutomationConfig } from "./lib/config.mjs";
 import { appendStepSummary, getCandidatePostFiles, readPostFile, slugify } from "./lib/posts.mjs";
 
-const HASHNODE_API_URL = "https://gql.hashnode.com";
+const HASHNODE_API_URL = "https://gql-beta.hashnode.com/";
 const dryRun = process.env.DRY_RUN === "1";
 
 async function hashnodeRequest(query, variables, token) {
@@ -14,7 +14,14 @@ async function hashnodeRequest(query, variables, token) {
     body: JSON.stringify({ query, variables }),
   });
 
-  const payload = await response.json();
+  const responseBody = await response.text();
+  let payload;
+  try {
+    payload = JSON.parse(responseBody);
+  } catch {
+    const contentType = response.headers.get("content-type") || "unknown content type";
+    throw new Error(`Hashnode request failed: HTTP ${response.status}, ${contentType}.`);
+  }
   if (!response.ok || payload.errors?.length) {
     const detail = payload.errors?.map((error) => error.message).join("; ") || JSON.stringify(payload);
     throw new Error(`Hashnode request failed: ${detail}`);

@@ -13,6 +13,8 @@ This is the stupid-simple version.
 - Manual dry-run checks
 - Auto-run GitHub Action
 
+Hashnode's current write API requires the publication to have an active Pro plan.
+
 ## What still needs keys from you if you want “post everywhere”
 
 - LinkedIn: `LINKEDIN_ACCESS_TOKEN`
