@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { getLocalDateStamp, getPostsDir, slugify } from "./lib/posts.mjs";
+import { getDraftsDir, normalizeTags, slugify } from "./lib/posts.mjs";
 import { loadAutomationConfig, loadSiteConfig } from "./lib/config.mjs";
-import { serializeFrontmatter } from "./lib/frontmatter.mjs";
+import { parseFrontmatter, serializeFrontmatter } from "./lib/frontmatter.mjs";
 
 function getArg(flag) {
   const index = process.argv.indexOf(flag);
@@ -40,22 +40,25 @@ function deriveDescription(content) {
 
 const sourcePath = getArg("--source").trim();
 if (!sourcePath) {
-  console.error('Usage: npm run post:import -- --source "/path/to/draft.txt" [--title "My Title"] [--description "Short summary"] [--tags "ai,llm"]');
+  console.error('Usage: npm run draft:import -- --source "/path/to/draft.txt" [--title "My Title"] [--description "Short summary"] [--tags "ai,llm"]');
   process.exit(1);
 }
 
 const raw = await fs.readFile(sourcePath, "utf8");
-const title = getArg("--title").trim() || deriveTitle(sourcePath, raw);
-const description = getArg("--description").trim() || deriveDescription(raw);
-const tags = getArg("--tags")
-  .split(",")
-  .map((tag) => tag.trim())
-  .filter(Boolean);
+const { data: sourceData, content: sourceContent } = parseFrontmatter(raw);
+const title = getArg("--title").trim() || String(sourceData.title ?? "").trim() || deriveTitle(sourcePath, sourceContent);
+const description =
+  getArg("--description").trim() ||
+  String(sourceData.description ?? "").trim() ||
+  deriveDescription(sourceContent);
+const requestedTags = getArg("--tags");
+const tags = requestedTags
+  ? requestedTags.split(",").map((tag) => tag.trim()).filter(Boolean)
+  : normalizeTags(sourceData.tags);
 
 const slug = slugify(title);
-const today = getLocalDateStamp();
-const postsDir = await getPostsDir();
-const filePath = path.join(postsDir, `${today}-${slug}.md`);
+const draftsDir = await getDraftsDir();
+const filePath = path.join(draftsDir, `${slug}.md`);
 
 try {
   await fs.access(filePath);
@@ -75,6 +78,7 @@ const [automationConfig, siteConfig] = await Promise.all([
 const canonicalBase = String(automationConfig.site.canonical_base || siteConfig.url).replace(/\/+$/, "");
 const content = serializeFrontmatter(
   {
+    ...sourceData,
     title,
     description,
     slug,
@@ -86,8 +90,10 @@ const content = serializeFrontmatter(
     publish_hashnode: true,
     hashnode_publication_id: "USE_DEFAULT",
   },
-  raw.trim(),
+  sourceContent,
 );
 
+await fs.mkdir(draftsDir, { recursive: true });
 await fs.writeFile(filePath, content);
-console.log(filePath);
+console.log(path.relative(process.cwd(), filePath));
+console.log(`Publish when ready: npm run draft:publish -- ${slug}`);

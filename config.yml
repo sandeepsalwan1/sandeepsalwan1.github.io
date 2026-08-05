@@ -3,6 +3,7 @@ site:
 
 paths:
   posts_dir: "_posts"
+  drafts_dir: "_drafts"
 
 platforms:
   devto:
@@ -21,3 +22,7 @@ platforms:
   social:
     enabled: true
     state_file: ".automation/social-post-state.json"
+    required_targets:
+      - twitter
+      - mastodon
+      - bluesky

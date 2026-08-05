@@ -2,6 +2,7 @@ import { Client, BlueskyStrategy, DiscordStrategy, DiscordWebhookStrategy, Linke
 import path from "node:path";
 import { loadAutomationConfig } from "./lib/config.mjs";
 import { appendStepSummary, getCandidatePostFiles, readJsonIfPresent, readPostFile, writeJson } from "./lib/posts.mjs";
+import { pendingStrategies, recordStrategyResults } from "./lib/social-state.mjs";
 
 const dryRun = process.env.DRY_RUN === "1";
 
@@ -172,6 +173,14 @@ if (!enabled) {
 }
 
 const strategies = buildStrategies();
+const configuredIds = new Set(strategies.map((strategy) => strategy.id));
+const requiredTargets = config.platforms.social?.required_targets ?? [];
+const missingRequiredTargets = requiredTargets.filter((target) => !configuredIds.has(target));
+
+if (missingRequiredTargets.length > 0) {
+  throw new Error(`Required social targets are not configured: ${missingRequiredTargets.join(", ")}`);
+}
+
 if (strategies.length === 0) {
   console.log("No social strategies configured. Skipping social cross-post.");
   process.exit(0);
@@ -195,31 +204,49 @@ const statePath = path.join(process.cwd(), config.platforms.social?.state_file ?
 const state = await readJsonIfPresent(statePath, {});
 const client = new Client({ strategies });
 const summaryLines = [dryRun ? "### Social Dry Run" : "### Social Cross-post"];
+const failures = [];
 
 for (const post of posts) {
-  if (state[post.canonicalUrl]) {
+  const targets = pendingStrategies(strategies, state[post.canonicalUrl]);
+  if (targets.length === 0) {
     console.log(`Already cross-posted: ${post.canonicalUrl}`);
     summaryLines.push(`- skipped ${post.title}: already posted`);
     continue;
   }
 
-  const message = buildMessage(post, strategies);
+  const message = buildMessage(post, targets);
   if (dryRun) {
     console.log(`Would cross-post: ${message}`);
-    summaryLines.push(`- ${post.title}: would post to ${strategies.map((strategy) => strategy.id).join(", ")}`);
+    summaryLines.push(`- ${post.title}: would post to ${targets.map((strategy) => strategy.id).join(", ")}`);
     continue;
   }
 
-  const result = await client.post(message);
-  state[post.canonicalUrl] = {
-    postedAt: new Date().toISOString(),
-    title: post.title,
-    result,
-  };
+  const results = await client.postTo(
+    targets.map((strategy) => ({ strategyId: strategy.id, message })),
+  );
+  const recorded = recordStrategyResults(
+    { ...state[post.canonicalUrl], title: post.title },
+    targets,
+    results,
+  );
+  state[post.canonicalUrl] = recorded.entry;
+  await writeJson(statePath, state);
 
-  console.log(`Cross-posted: ${post.title}`);
-  summaryLines.push(`- ${post.title}: posted to ${strategies.map((strategy) => strategy.id).join(", ")}`);
+  const successfulIds = targets
+    .filter((_, index) => results[index]?.ok)
+    .map((strategy) => strategy.id);
+  if (successfulIds.length > 0) {
+    console.log(`Cross-posted ${post.title}: ${successfulIds.join(", ")}`);
+    summaryLines.push(`- ${post.title}: posted to ${successfulIds.join(", ")}`);
+  }
+  if (recorded.failures.length > 0) {
+    failures.push(...recorded.failures.map((target) => `${post.title}: ${target}`));
+    summaryLines.push(`- ${post.title}: failed on ${recorded.failures.join(", ")}`);
+  }
 }
 
-await writeJson(statePath, state);
 await appendStepSummary(summaryLines.join("\n"));
+
+if (failures.length > 0) {
+  throw new Error(`Social cross-post failed:\n${failures.join("\n")}`);
+}
