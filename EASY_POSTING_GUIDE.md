@@ -7,50 +7,58 @@ This is the stupid-simple version.
 - Your own site: `sandeeps.tech`
 - dev.to
 - Hashnode
+- X
+- Mastodon
+- Bluesky
 - Manual dry-run checks
 - Auto-run GitHub Action
 
+Hashnode's current write API requires the publication to have an active Pro plan.
+
 ## What still needs keys from you if you want “post everywhere”
 
-- X: `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`
-- Mastodon: `MASTODON_HOST`, `MASTODON_ACCESS_TOKEN`
-- Bluesky: `BLUESKY_HOST`, `BLUESKY_IDENTIFIER`, `BLUESKY_APP_PASSWORD`
 - LinkedIn: `LINKEDIN_ACCESS_TOKEN`
 - Discord: easiest is `DISCORD_WEBHOOK_URL`
 - Telegram: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 
-If those are not set, the blog still posts to your site, dev.to, and Hashnode. It just skips the missing socials.
+LinkedIn, Discord, and Telegram stay optional until their credentials are added.
+The currently required destinations fail loudly when their credentials or publishing step fails.
 
 ## The easiest way to use it
 
 ### Option 1: easiest possible
 
-1. Make a new post file:
+1. Make a new draft file:
 
 ```bash
-npm run post:new -- --title "My New Post" --description "One line summary" --tags "ai,llm"
+npm run draft:new -- --title "My New Post" --description "One line summary" --tags "ai,llm"
 ```
 
 2. Open the file it prints.
 3. Write the post.
-4. Commit and push to `main`.
-5. Done. GitHub Actions auto-posts it.
+4. Commit the draft whenever you want it backed up in GitHub.
+5. When it is ready, run `npm run draft:publish -- my-new-post`.
+6. Review, commit, and push the promoted `_posts/` file to `main`.
+7. Done. GitHub Actions publishes the canonical page first, then fans out.
+
+This repository is public.
+Committing a draft backs it up without publishing it on the website, but anyone can still read the draft source on GitHub.
 
 ### Option 1B: start from a `.txt` or `.md` draft you already wrote
 
 If you already wrote something in Notes, TextEdit, Cursor, or anywhere else:
 
 ```bash
-npm run post:import -- --source "/full/path/to/your-draft.txt" --tags "ai,llm"
+npm run draft:import -- --source "/full/path/to/your-draft.txt" --tags "ai,llm"
 ```
 
 Or for markdown:
 
 ```bash
-npm run post:import -- --source "/full/path/to/your-draft.md" --tags "ai,llm"
+npm run draft:import -- --source "/full/path/to/your-draft.md" --tags "ai,llm"
 ```
 
-That creates the ready-to-publish `_posts/...md` file automatically.
+That creates `_drafts/...md` without making it publishable by accident.
 
 ### Option 2: manual button in GitHub
 
@@ -74,8 +82,10 @@ _posts/2026-04-18-my-post.md
 Run these before real publishing if you want to be extra safe:
 
 ```bash
-npm run post:import -- --source "/full/path/to/draft.txt" --tags "ai,llm"
+npm run draft:import -- --source "/full/path/to/draft.txt" --tags "ai,llm"
+npm run draft:publish -- <draft-name> --check
 npm run check:setup
+npm test
 npm run verify:automation
 DRY_RUN=1 POST_PATH=_posts/2026-04-15-what-i-look-for-in-agentic-products.md npm run publish:devto
 DRY_RUN=1 POST_PATH=_posts/2026-04-15-what-i-look-for-in-agentic-products.md npm run publish:hashnode

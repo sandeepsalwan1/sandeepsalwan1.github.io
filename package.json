@@ -7,12 +7,16 @@
   },
   "scripts": {
     "check:setup": "node scripts/check_github_secrets.mjs",
+    "draft:import": "node scripts/import_post.mjs",
+    "draft:new": "node scripts/create_post.mjs",
+    "draft:publish": "node scripts/publish_draft.mjs",
     "post:import": "node scripts/import_post.mjs",
     "post:new": "node scripts/create_post.mjs",
     "normalize:frontmatter": "node scripts/normalize_frontmatter.mjs",
     "publish:devto": "node scripts/publish_devto.mjs",
     "publish:hashnode": "node scripts/publish_hashnode.mjs",
     "post:social": "node scripts/post_to_social.mjs",
+    "test": "node --test",
     "verify:automation": "node scripts/verify_automation.mjs"
   },
   "dependencies": {

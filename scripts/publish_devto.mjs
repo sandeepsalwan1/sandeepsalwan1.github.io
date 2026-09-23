@@ -47,6 +47,9 @@ if (!enabled) {
 }
 
 if (!token) {
+  if (process.env.REQUIRE_PUBLISH_TARGETS === "1") {
+    throw new Error("DEVTO_TOKEN is required for this publish run.");
+  }
   console.log("DEVTO_TOKEN not set. Skipping dev.to publish.");
   process.exit(0);
 }

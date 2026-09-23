@@ -8,21 +8,21 @@ const groups = [
   {
     label: "Core blog publishing",
     required: true,
-    sets: [["DEVTO_TOKEN"], ["HASHNODE_TOKEN"], ["HASHNODE_PUBLICATION_ID"]],
+    sets: [["DEVTO_TOKEN", "HASHNODE_TOKEN", "HASHNODE_PUBLICATION_ID"]],
   },
   {
     label: "X",
-    required: false,
+    required: true,
     sets: [["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"]],
   },
   {
     label: "Mastodon",
-    required: false,
+    required: true,
     sets: [["MASTODON_HOST", "MASTODON_ACCESS_TOKEN"]],
   },
   {
     label: "Bluesky",
-    required: false,
+    required: true,
     sets: [["BLUESKY_HOST", "BLUESKY_IDENTIFIER", "BLUESKY_APP_PASSWORD"]],
   },
   {

@@ -25,9 +25,18 @@ on:
 env:
   POST_PATH: ${{ github.event.inputs.post_path }}
   DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '' }}
+  REQUIRE_PUBLISH_TARGETS: "1"
+
+concurrency:
+  group: blog-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: read
 
 jobs:
-  normalize-frontmatter:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,11 +47,31 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Normalize frontmatter
-        run: node scripts/normalize_frontmatter.mjs
+      - run: npm test
+      - name: Check normalized frontmatter
+        run: npm run normalize:frontmatter -- --check
+
+  wait-for-canonical:
+    needs: validate
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Wait for canonical site publication
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/wait_for_canonical.mjs
 
   devto:
-    needs: normalize-frontmatter
+    needs: wait-for-canonical
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +89,8 @@ jobs:
         run: node scripts/publish_devto.mjs
 
   hashnode:
-    needs: normalize-frontmatter
+    needs: wait-for-canonical
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,9 +109,9 @@ jobs:
         run: node scripts/publish_hashnode.mjs
 
   social-crosspost:
-    needs: normalize-frontmatter
+    needs: wait-for-canonical
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,8 +124,9 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: .automation/social-post-state.json
-          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}
+          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
+            social-post-state-${{ github.ref_name }}-${{ github.run_id }}-
             social-post-state-${{ github.ref_name }}-
       - name: Cross-post to social networks
         env:
@@ -119,4 +150,4 @@ jobs:
         if: ${{ always() && hashFiles('.automation/social-post-state.json') != '' }}
         with:
           path: .automation/social-post-state.json
-          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}
+          key: social-post-state-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}

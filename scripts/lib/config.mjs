@@ -8,6 +8,7 @@ const DEFAULT_CONFIG = {
   },
   paths: {
     posts_dir: "_posts",
+    drafts_dir: "_drafts",
   },
   platforms: {
     devto: {

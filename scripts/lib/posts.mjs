@@ -125,7 +125,15 @@ export function normalizePostData(data, canonicalBase) {
 }
 
 async function listMarkdownFiles(dirPath) {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  let entries;
+  try {
+    entries = await fs.readdir(dirPath, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
   const files = [];
 
   for (const entry of entries) {
@@ -148,9 +156,19 @@ export async function getPostsDir(cwd = process.cwd()) {
   return path.join(cwd, config.paths.posts_dir ?? "_posts");
 }
 
+export async function getDraftsDir(cwd = process.cwd()) {
+  const config = await loadAutomationConfig(cwd);
+  return path.join(cwd, config.paths.drafts_dir ?? "_drafts");
+}
+
 export async function listPostFiles(cwd = process.cwd()) {
   const postsDir = await getPostsDir(cwd);
   return listMarkdownFiles(postsDir);
+}
+
+export async function listDraftFiles(cwd = process.cwd()) {
+  const draftsDir = await getDraftsDir(cwd);
+  return listMarkdownFiles(draftsDir);
 }
 
 export async function readPostFile(filePath, cwd = process.cwd()) {
@@ -296,6 +314,19 @@ async function filesFromGitDiff(postsDir, { addedOnly, cwd }) {
   }
 }
 
+export async function resolveExplicitPostPath(requestedPath, cwd = process.cwd()) {
+  const postsDir = path.resolve(await getPostsDir(cwd));
+  const candidate = path.resolve(cwd, requestedPath);
+  const relative = path.relative(postsDir, candidate);
+  const insidePosts = relative && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+
+  if (!insidePosts || !/\.(md|markdown)$/i.test(candidate)) {
+    throw new Error(`POST_PATH must name a Markdown file inside ${path.relative(cwd, postsDir)}.`);
+  }
+
+  return candidate;
+}
+
 export async function getCandidatePostFiles({
   cwd = process.cwd(),
   addedOnly = false,
@@ -305,7 +336,7 @@ export async function getCandidatePostFiles({
   const postsDir = config.paths.posts_dir ?? "_posts";
 
   if (process.env.POST_PATH) {
-    return [path.join(cwd, process.env.POST_PATH)];
+    return [await resolveExplicitPostPath(process.env.POST_PATH, cwd)];
   }
 
   const fromEvent = await filesFromGitEvent(postsDir, { addedOnly });
